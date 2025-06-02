@@ -2,8 +2,17 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/patient-service/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/patient-service/src/main/java/com/medilabo/patient_service" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/patient-service/src/main/java/com/medilabo/patient_service/dto" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/patient-service/src/main/java/com/medilabo/patient_service/model" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/patient-service/src" />
+      <excludeFolder url="file://$MODULE_DIR$/patient-service/src/main/java/com/medilabo/patient_service " />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
   </component>
 </module>
