@@ -5,14 +5,23 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
+<<<<<<< HEAD
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
+=======
+		<version>3.2.5</version>
+		<relativePath/>
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 	</parent>
 	<groupId>com.medilabo</groupId>
 	<artifactId>patient-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>patient-service</name>
+<<<<<<< HEAD
 	<description>Microservice for patient management</description>
+=======
+	<description>Demo project for Spring Boot</description>
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 	<url/>
 	<licenses>
 		<license/>
@@ -44,6 +53,15 @@
 		</dependency>
 
 		<dependency>
+<<<<<<< HEAD
+=======
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
@@ -51,8 +69,15 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+<<<<<<< HEAD
 			<optional>true</optional>
 		</dependency>
+=======
+			<version>1.18.30</version>
+			<scope>provided</scope>
+		</dependency>
+
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -63,6 +88,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<<<<<<< HEAD
 
 		<dependency>
 			<groupId>jakarta.validation</groupId>
@@ -70,6 +96,8 @@
 			<version>3.0.2</version>
 		</dependency>
 
+=======
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 	</dependencies>
 
 	<build>
@@ -77,11 +105,19 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+<<<<<<< HEAD
+=======
+				<version>3.11.0</version>
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 				<configuration>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+<<<<<<< HEAD
+=======
+							<version>1.18.30</version>
+>>>>>>> 2c927fcf43967eeef8f1727597a394f1efe3e8b9
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
