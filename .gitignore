@@ -1,0 +1,11 @@
+# Ignorer les dossiers de build
+/out
+/target
+
+# Ignorer les métadonnées IntelliJ
+.idea/
+*.iml
+
+# Ignorer les exécutables Maven
+mvnw
+mvnw.cmd
