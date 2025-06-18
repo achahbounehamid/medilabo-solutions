@@ -4,7 +4,6 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/front-service/src/main/java/com/medilabo/controller" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/front-service/src/main/java/com/medilabo/front" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
