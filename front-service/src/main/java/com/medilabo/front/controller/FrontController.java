@@ -4,23 +4,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class FrontController {
-    @GetMapping("/")
-    public String home() {
-        return "home"; // Affiche home.html
+    @GetMapping("/homePage")
+    public String homePage() {
+        return "homePage";
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login"; // Affiche login.html
+        return "login";
     }
 
     @GetMapping("/patients")
     public String patientList() {
-        return "patient"; // Affiche patient.html
+        return "patientInfoPage";
     }
 
     @GetMapping("/patients/add")
     public String addPatient() {
-        return "addPatient"; // Affiche addPatient.html
+        return "addPatientPage";
     }
 }
