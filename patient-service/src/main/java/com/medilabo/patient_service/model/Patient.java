@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -24,7 +23,6 @@ public class Patient {
     private String genre;
     private String adresse;
     private String telephone;
-
 
 }
 

@@ -5,6 +5,7 @@ import com.medilabo.patient_service.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,14 @@ public class PatientService {
 
         return patientRepository.findAll();
     }
+    public List<Patient> search(String lastName, String firstName, LocalDate dateOfBirth) {
+        if (lastName != null && !lastName.isEmpty()) {
+            return patientRepository.findByNomIgnoreCase(lastName);
+        }
+        // Ajoute d'autres cas combinés si besoin
+        return patientRepository.findAll(); // par défaut, retourne tout
+    }
+
 
     // Trouver un utilisateur par son ID
     public Optional<Patient> findById(Long id) {

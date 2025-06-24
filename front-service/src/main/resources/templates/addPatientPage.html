@@ -1,48 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <title>Ajouter un patient</title>
     <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
-    <title>Medilabo</title>
 </head>
-<body
-        style="height: 100vh"
-        class="d-flex flex-column align-items-center justify-content-center"
->
-<div class="alert alert-danger" role="alert" th:if="${param.error}">
-    Invalid email or password.
+<body>
+<div class="container mt-4">
+    <h2>Ajouter un patient</h2>
+    <form th:action="@{/patients/add}" method="post">
+        <div class="mb-3">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" name="nom" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Prénom</label>
+            <input type="text" class="form-control" name="prenom" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Date de naissance</label>
+            <input type="date" class="form-control" name="dateDeNaissance" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Genre</label>
+            <select class="form-control" name="genre" required>
+                <option value="">-- Choisir --</option>
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <input type="text" class="form-control" name="adresse">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Téléphone</label>
+            <input type="text" class="form-control" name="telephone">
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <a class="btn btn-secondary" th:href="@{/homePage}">Annuler</a>
+    </form>
 </div>
-<div class="alert alert-warning" role="alert" th:if="${param.logout}">
-    you have been logged out.
-</div>
-<form
-        style="height: 400px; width: 300px"
-        class="d-flex flex-column justify-content-between align-items-center border border-dark rounded-4 p-5"
-        th:action="@{/login}"
-        method="post"
->
-    <img th:src="@{/assets/logo.png}" class="w-100" />
-    <div class="form-group">
-        <input
-                type="text"
-                class="form-control"
-                id="username"
-                aria-describedby="emailHelp"
-                placeholder="Username"
-                name="username"
-        />
-    </div>
-    <div class="form-group">
-        <input
-                type="password"
-                class="form-control"
-                id="password"
-                placeholder="Password"
-                name="password"
-        />
-    </div>
-    <button type="submit" class="btn btn-primary">LOGIN</button>
-</form>
 </body>
 </html>

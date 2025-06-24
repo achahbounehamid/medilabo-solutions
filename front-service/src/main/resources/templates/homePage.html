@@ -29,21 +29,27 @@
             <div class="card">
                 <div class="card-header bg-primary-subtle">Search Patient</div>
                 <div class="card-body">
-                    <form class="d-flex flex-row align-items-end justify-content-around" th:action="@{/}">
+                    <form th:action="@{/patients/search}" method="get"
+                          class="d-flex flex-row align-items-end justify-content-around">
+
                         <div>
                             <label for="lastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="lastName" th:name="lastName">
+                            <input type="text" class="form-control" id="lastName" name="lastName">
                         </div>
+
                         <div>
                             <label for="firstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="firstName" th:name="firstName">
+                            <input type="text" class="form-control" id="firstName" name="firstName">
                         </div>
+
                         <div>
                             <label for="dateOfBirth" class="form-label">Date Of Birth</label>
-                            <input type="date" class="form-control" id="dateOfBirth" th:name="dateOfBirth">
+                            <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth">
                         </div>
+
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -65,23 +71,24 @@
                     <tbody>
                     <tr th:each="patient : ${patients}">
                         <td th:text="${patient.id}"></td>
-                        <td th:text="${#strings.capitalize(patient.lastName)}"></td>
-                        <td th:text="${#strings.capitalize(patient.firstName)}"></td>
-                        <td th:text="${#temporals.format(patient.dateOfBirth, 'dd-MM-yyyy')}"></td>
-                        <td th:text="${patient.gender}"></td>
-                        <td th:if="${patient.address}" th:text="${patient.address.getNumber()}  + ' ' +  ${#strings.toLowerCase(patient.address.getStreet())}"></td>
-                        <td th:unless="${patient.address}"></td>
-                        <td th:text="${patient.phoneNumber}"></td>
+                        <td th:text="${#strings.capitalize(patient.nom)}"></td>
+                        <td th:text="${#strings.capitalize(patient.prenom)}"></td>
+                        <td th:text="${#temporals.format(patient.dateDeNaissance, 'dd-MM-yyyy')}"></td>
+                        <td th:text="${patient.genre}"></td>
+                        <td th:text="${patient.adresse}"></td>
+                        <td th:text="${patient.telephone}"></td>
+
                         <td>
-                            <a class="btn btn-primary" th:href="@{/patient/update/{id}(id=${patient.id})}">
-                                <i class="bi bi-pencil-fill"></i>
+                            <a class="btn btn-success" th:href="@{/patient/update/{id}(id=${patient.id})}">
+                                <i class="bi bi-pencil-fill">Modifier</i>
                             </a>
                         </td>
                         <td>
-                            <a class="btn btn-success" th:href="@{/patient/infos/{id}(id=${patient.id})}">
-                                <i class="bi bi-eye-fill"></i>
+                            <a class="btn btn-danger" th:href="@{/patient/delete/{id}(id=${patient.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce patient ?');">
+                                <i class="bi bi-trash"> Supprimer</i>
                             </a>
                         </td>
+
                     </tr>
                     </tbody>
                 </table>

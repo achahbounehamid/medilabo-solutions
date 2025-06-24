@@ -1,10 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Modifier un patient</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
 </head>
 <body>
-
+<div class="container mt-4">
+    <h2>Modifier un patient</h2>
+    <form th:action="@{/patient/update/{id}(id=${patient.id})}" th:object="${patient}" method="post">
+        <div class="mb-3">
+            <label>Nom</label>
+            <input type="text" class="form-control" th:field="*{nom}" required>
+        </div>
+        <div class="mb-3">
+            <label>Prénom</label>
+            <input type="text" class="form-control" th:field="*{prenom}" required>
+        </div>
+        <div class="mb-3">
+            <label>Date de naissance</label>
+            <input type="date" class="form-control" th:field="*{dateDeNaissance}" required>
+        </div>
+        <div class="mb-3">
+            <label>Genre</label>
+            <select class="form-control" th:field="*{genre}" required>
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Adresse</label>
+            <input type="text" class="form-control" th:field="*{adresse}">
+        </div>
+        <div class="mb-3">
+            <label>Téléphone</label>
+            <input type="text" class="form-control" th:field="*{telephone}">
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a class="btn btn-secondary" th:href="@{/homePage}">Annuler</a>
+    </form>
+</div>
 </body>
 </html>

@@ -4,11 +4,12 @@ import com.medilabo.patient_service.model.Patient;
 import com.medilabo.patient_service.service.PatientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,12 +39,20 @@ public class PatientController {
 
         return ResponseEntity.ok(patientService.save(patient));
     }
-
-    @PutMapping("/{id}")
-    public  ResponseEntity<Patient> updatePatient(@PathVariable Long id, @RequestBody @Valid Patient patient){
-        patient.setId(id);
-        return ResponseEntity.ok(patientService.save(patient));
+    @GetMapping("/search")
+    public List<Patient> searchPatients(
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth
+    ) {
+        return patientService.search(lastName, firstName, dateOfBirth);
     }
+
+//    @PutMapping("/{id}")
+//    public  ResponseEntity<Patient> updatePatient(@PathVariable Long id, @RequestBody @Valid Patient patient){
+//        patient.setId(id);
+//        return ResponseEntity.ok(patientService.save(patient));
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable  Long id) {
