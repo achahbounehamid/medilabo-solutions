@@ -75,14 +75,14 @@ public class FrontController {
         return "redirect:/homePage";
     }
 
-
     @GetMapping("/patients/search")
     public String searchPatients(
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth,
             Model model
-    ) {
+    )
+    {
         // Construire l’URL de recherche vers patient-service
         StringBuilder url = new StringBuilder(patientServiceUrl + "/api/patients/search?");
 
@@ -100,7 +100,7 @@ public class FrontController {
         Patient[] patients = response.getBody();
 
         model.addAttribute("patients", Arrays.asList(patients));
-        return "patientInfoPage"; // ou "homePage" si tu veux afficher les résultats là
+        return "patientInfoPage";
     }
 
 }
