@@ -109,10 +109,18 @@
                             </a>
                         </td>
                         <td>
-                            <a class="btn btn-danger" th:href="@{/patient/delete/{id}(id=${patient.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce patient ?');">
+                            <a class="btn btn-danger"
+                               th:href="@{/patient/delete/{id}(id=${patient.id})}"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce patient ?');">
                                 <i class="bi bi-trash"> Supprimer</i>
                             </a>
                         </td>
+                        <td>
+                            <a th:href="@{/notes/add/{patientId}(patientId=${patientId})}" class="btn btn-primary mb-3">
+                                <i class="bi bi-journal-plus"></i> Ajouter une note
+                            </a>
+                        </td>
+
 
                     </tr>
                     </tbody>
