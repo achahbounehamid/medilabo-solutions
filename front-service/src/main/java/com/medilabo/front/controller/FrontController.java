@@ -102,5 +102,37 @@ public class FrontController {
         model.addAttribute("patients", Arrays.asList(patients));
         return "patientInfoPage";
     }
+    @GetMapping("/patient/infos/{id}")
+    public String afficherFichePatient(@PathVariable Long id, Model model) {
+        // Récupérer les infos du patient
+        ResponseEntity<Patient> response = restTemplate.getForEntity(patientServiceUrl + "/api/patients/" + id, Patient.class);
+        Patient patient = response.getBody();
+        model.addAttribute("patient", patient);
 
+        // Appeler le microservice diabetes-risk-service
+        String riskUrl = "http://localhost:9003/api/diabetes-risk/" + id;
+        ResponseEntity<String> riskResponse = restTemplate.getForEntity(riskUrl, String.class);
+        model.addAttribute("riskLevel", riskResponse.getBody());
+
+        return "patientDetailsPage"; // À créer dans templates
+    }
+
+//    @GetMapping("/patient/infos/{id}")
+//    public String afficherFichePatient(@PathVariable Long id, Model model) {
+//        // 1. Récupérer le patient par son ID (depuis patient-service)
+//        ResponseEntity<Patient> response = restTemplate.getForEntity(
+//                patientServiceUrl + "/api/patients/" + id, Patient.class
+//        );
+//        Patient patient = response.getBody();
+//        model.addAttribute("patient", patient);
+//
+//        // 2. Appeler diabetes-risk-service pour le risque
+//        String riskUrl = "http://localhost:9003/api/diabetes-risk/" + id;
+//        ResponseEntity<String> riskResponse = restTemplate.getForEntity(riskUrl, String.class);
+//        String riskLevel = riskResponse.getBody();
+//        model.addAttribute("riskLevel", riskLevel);
+//
+//        // 3. Retourner la vue détail
+//        return "patientDetailsPage";
+//    }
 }

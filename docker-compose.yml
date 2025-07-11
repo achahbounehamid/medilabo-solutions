@@ -1,0 +1,106 @@
+
+services:
+
+  # Base MongoDB pour note-service
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - medilabo-network
+    volumes:
+      - mongo_data:/data/db
+
+  # Base MySQL pour patient-service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=patientsdb
+    ports:
+      - "3306:3306"
+    networks:
+      - medilabo-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  patient-service:
+    build: ./patient-service
+    container_name: patient-service
+    depends_on:
+      - mysql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/patientsdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "9001:9001"
+    networks:
+      - medilabo-network
+
+  note-service:
+    build: ./note-service
+    container_name: note-service
+    depends_on:
+      - mongo
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/notedb
+      - SERVER_PORT=9002
+    ports:
+      - "9002:9002"
+    networks:
+      - medilabo-network
+
+  diabetes-risk-service:
+    build: ./diabetes-risk-service
+    container_name: diabetes-risk-service
+    depends_on:
+      - patient-service
+      - note-service
+    environment:
+      - SERVER_PORT=9003
+      - PATIENT_SERVICE_URL=http://patient-service:9001
+      - NOTE_SERVICE_URL=http://note-service:9002
+    ports:
+      - "9003:9003"
+    networks:
+      - medilabo-network
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    depends_on:
+      - patient-service
+    environment:
+      - SERVER_PORT=8080
+      - PATIENT_SERVICE_URL=http://patient-service:9001
+      - FRONT_SERVICE_URL=http://front-service:8081
+    ports:
+      - "8080:8080"
+    networks:
+      - medilabo-network
+
+  front-service:
+    build: ./front-service
+    container_name: front-service
+    depends_on:
+      - gateway-service
+    environment:
+      - SERVER_PORT=8081
+      - PATIENT_SERVICE_URL=http://patient-service:9001
+      - NOTE_SERVICE_URL=http://note-service:9002
+    ports:
+      - "8081:8081"
+    networks:
+      - medilabo-network
+
+networks:
+  medilabo-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  mysql_data:

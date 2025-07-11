@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+    <meta charset="UTF-8">
+    <title>Fiche Patient</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
 </head>
 <body>
-
+<div class="container mt-4">
+    <h2>Fiche du patient</h2>
+    <ul class="list-group">
+        <li class="list-group-item">Nom : <span th:text="${patient.nom}"></span></li>
+        <li class="list-group-item">Prénom : <span th:text="${patient.prenom}"></span></li>
+        <li class="list-group-item">Date de naissance : <span th:text="${#temporals.format(patient.dateDeNaissance, 'dd-MM-yyyy')}"></span></li>
+        <li class="list-group-item">Genre : <span th:text="${patient.genre}"></span></li>
+        <li class="list-group-item">Adresse : <span th:text="${patient.adresse}"></span></li>
+        <li class="list-group-item">Téléphone : <span th:text="${patient.telephone}"></span></li>
+    </ul>
+    <div class="alert alert-warning mt-4">
+        Risque de diabète : <strong th:text="${riskLevel}">-</strong>
+    </div>
+    <a class="btn btn-primary" th:href="@{/homePage}">Retour</a>
+</div>
 </body>
 </html>

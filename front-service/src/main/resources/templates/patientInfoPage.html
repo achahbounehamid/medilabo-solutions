@@ -27,7 +27,14 @@
             <td th:text="${patient.genre}"></td>
             <td th:text="${patient.adresse}"></td>
             <td th:text="${patient.telephone}"></td>
+            <td>
+                <a class="btn btn-outline-info"
+                   th:href="@{/patient/infos/{id}(id=${patient.id})}">
+                    Voir fiche & risque
+                </a>
+            </td>
         </tr>
+
         </tbody>
     </table>
     <div class="mt-4 text-center">
