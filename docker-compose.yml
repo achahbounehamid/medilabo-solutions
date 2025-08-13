@@ -1,6 +1,4 @@
-
 services:
-
   # Base MongoDB pour note-service
   mongo:
     image: mongo:4.4
@@ -16,11 +14,12 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=patientsdb
+      MYSQL_DATABASE: patientsdb
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
-      - "3306:3306"
+      - "3307:3306" # 3307 sur ta machine pour éviter conflit avec WAMP
     networks:
       - medilabo-network
     volumes:
@@ -32,10 +31,10 @@ services:
     depends_on:
       - mysql
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/patientsdb
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patientsdb?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
       - "9001:9001"
     networks:
@@ -47,8 +46,7 @@ services:
     depends_on:
       - mongo
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/notedb
-      - SERVER_PORT=9002
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/notedb
     ports:
       - "9002:9002"
     networks:
@@ -61,9 +59,9 @@ services:
       - patient-service
       - note-service
     environment:
-      - SERVER_PORT=9003
-      - PATIENT_SERVICE_URL=http://patient-service:9001
-      - NOTE_SERVICE_URL=http://note-service:9002
+      SERVER_PORT: 9003
+      PATIENT_SERVICE_URL: http://patient-service:9001
+      NOTE_SERVICE_URL: http://note-service:9002
     ports:
       - "9003:9003"
     networks:
@@ -73,11 +71,11 @@ services:
     build: ./gateway-service
     container_name: gateway-service
     depends_on:
-      - patient-service
+      - diabetes-risk-service
     environment:
-      - SERVER_PORT=8080
-      - PATIENT_SERVICE_URL=http://patient-service:9001
-      - FRONT_SERVICE_URL=http://front-service:8081
+      SERVER_PORT: 8080
+      PATIENT_SERVICE_URL: http://patient-service:9001
+      FRONT_SERVICE_URL: http://front-service:8081
     ports:
       - "8080:8080"
     networks:
@@ -89,9 +87,9 @@ services:
     depends_on:
       - gateway-service
     environment:
-      - SERVER_PORT=8081
-      - PATIENT_SERVICE_URL=http://patient-service:9001
-      - NOTE_SERVICE_URL=http://note-service:9002
+      SERVER_PORT: 8081
+      PATIENT_SERVICE_URL: http://patient-service:9001
+      NOTE_SERVICE_URL: http://note-service:9002
     ports:
       - "8081:8081"
     networks:
