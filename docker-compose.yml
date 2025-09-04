@@ -18,8 +18,9 @@ services:
     environment:
       MYSQL_DATABASE: patientsdb
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
     ports:
-      - "3307:3306" # 3307 sur ta machine pour éviter conflit avec WAMP
+      - "3307:3306"
     networks:
       - medilabo-network
     volumes:
@@ -31,14 +32,15 @@ services:
     depends_on:
       - mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patientsdb?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ""
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Force la datasource vers *medilabo* (passe devant application.properties)
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_JPA_SHOW_SQL: "true"
+      SERVER_PORT: 9001
     ports:
       - "9001:9001"
     networks:
       - medilabo-network
+
 
   note-service:
     build: ./note-service
@@ -71,11 +73,12 @@ services:
     build: ./gateway-service
     container_name: gateway-service
     depends_on:
+      - patient-service
       - diabetes-risk-service
     environment:
       SERVER_PORT: 8080
       PATIENT_SERVICE_URL: http://patient-service:9001
-      FRONT_SERVICE_URL: http://front-service:8081
+#      FRONT_SERVICE_URL: http://front-service:8081
     ports:
       - "8080:8080"
     networks:
@@ -85,15 +88,20 @@ services:
     build: ./front-service
     container_name: front-service
     depends_on:
-      - gateway-service
+      - patient-service
+      - note-service
+      - diabetes-risk-service
     environment:
+      # Spring Boot fait le mapping ENV -> propriétés (SERVER_PORT -> server.port, etc.)
       SERVER_PORT: 8081
       PATIENT_SERVICE_URL: http://patient-service:9001
       NOTE_SERVICE_URL: http://note-service:9002
+      RISK_SERVICE_URL: http://diabetes-risk-service:9003
     ports:
       - "8081:8081"
     networks:
       - medilabo-network
+
 
 networks:
   medilabo-network:

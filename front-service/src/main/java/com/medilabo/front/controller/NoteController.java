@@ -1,6 +1,6 @@
 package com.medilabo.front.controller;
 
-import com.medilabo.front.model.Patient;
+
 import org.springframework.ui.Model;
 import com.medilabo.front.model.Note;
 import org.springframework.beans.factory.annotation.Autowired;
