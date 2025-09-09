@@ -20,11 +20,24 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
 
     ports:
-      - "3307:3306"
+      - "3308:3306"
     networks:
       - medilabo-network
     volumes:
       - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    depends_on: [ mysql ]
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8082:80"
+    networks:
+      - medilabo-network
+
 
   patient-service:
     build: ./patient-service
@@ -34,6 +47,9 @@ services:
     environment:
       # Force la datasource vers *medilabo* (passe devant application.properties)
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: medilabo
+      SPRING_DATASOURCE_PASSWORD: medipass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "true"
       SERVER_PORT: 9001
     ports:
@@ -78,7 +94,13 @@ services:
     environment:
       SERVER_PORT: 8080
       PATIENT_SERVICE_URL: http://patient-service:9001
-#      FRONT_SERVICE_URL: http://front-service:8081
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: patient-service
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://patient-service:9001
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/patients,/api/patients/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: front-service
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://front-service:8081
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/login,/css/**,/js/**,/images/**,/assets/**
+
     ports:
       - "8080:8080"
     networks:
