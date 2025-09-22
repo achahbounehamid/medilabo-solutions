@@ -8,35 +8,57 @@
 <body>
 <div class="container mt-4">
     <h2>Ajouter un patient</h2>
-    <form th:action="@{/patients/add}" method="post">
+
+    <form th:action="@{/patients/add}" th:object="${patient}" method="post">
+        <!-- CSRF obligatoire avec Spring Security -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
         <div class="mb-3">
             <label class="form-label">Nom</label>
-            <input type="text" class="form-control" name="nom" required>
+            <input class="form-control" th:field="*{nom}" required>
+            <div class="text-danger" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></div>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Prénom</label>
-            <input type="text" class="form-control" name="prenom" required>
+            <input class="form-control" th:field="*{prenom}" required>
+            <div class="text-danger" th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}"></div>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Date de naissance</label>
-            <input type="date" class="form-control" name="dateDeNaissance" required>
+            <input type="date" class="form-control" th:field="*{dateDeNaissance}" required>
+            <div class="text-danger" th:if="${#fields.hasErrors('dateDeNaissance')}" th:errors="*{dateDeNaissance}"></div>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Genre</label>
-            <select class="form-control" name="genre" required>
+            <select class="form-control" th:field="*{genre}" required>
                 <option value="">-- Choisir --</option>
                 <option value="M">Masculin</option>
                 <option value="F">Féminin</option>
             </select>
+            <div class="text-danger" th:if="${#fields.hasErrors('genre')}" th:errors="*{genre}"></div>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Adresse</label>
-            <input type="text" class="form-control" name="adresse">
+            <input class="form-control" th:field="*{adresse}">
+            <div class="text-danger" th:if="${#fields.hasErrors('adresse')}" th:errors="*{adresse}"></div>
         </div>
+
         <div class="mb-3">
-            <label class="form-label">Téléphone</label>
-            <input type="text" class="form-control" name="telephone">
+            <label class="form-label" for="telephone">Téléphone</label>
+            <input id="telephone" class="form-control" th:field="*{telephone}"
+                   required
+                   inputmode="numeric"
+                   pattern="^\d{10,15}$"
+                   maxlength="15"
+                   oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                   title="Uniquement des chiffres (10 à 15)." />
+            <div class="text-danger" th:if="${#fields.hasErrors('telephone')}" th:errors="*{telephone}"></div>
         </div>
+
         <button type="submit" class="btn btn-primary">Ajouter</button>
         <a class="btn btn-secondary" th:href="@{/homePage}">Annuler</a>
     </form>

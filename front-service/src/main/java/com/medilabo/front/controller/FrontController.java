@@ -6,11 +6,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import jakarta.validation.Valid;
+
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -26,7 +29,7 @@ public class FrontController {
     @Value("${patient.service.url}")
     private String patientServiceUrl;
 
-    @Value("${risk.service.url}")          // <-- plus de localhost en dur
+    @Value("${risk.service.url}")
     private String riskServiceUrl;
 
     @GetMapping("/homePage")
@@ -44,13 +47,22 @@ public class FrontController {
     public String patientList() { return "patientInfoPage"; }
 
     @GetMapping("/patients/add")
-    public String addPatient() { return "addPatientPage"; }
+    public String addPatient(Model model) {
+        model.addAttribute("patient", new Patient());
+        return "addPatientPage";
+    }
+
 
     @PostMapping("/patients/add")
-    public String savePatient(@ModelAttribute Patient patient) {
+    public String savePatient(@Valid @ModelAttribute Patient patient,
+                              BindingResult errors, Model model) {
+        if (errors.hasErrors()) {
+            return "addPatientPage"; // réaffiche le formulaire avec les messages
+        }
         restTemplate.postForEntity(patientServiceUrl + "/api/patients", patient, Patient.class);
         return "redirect:/homePage";
     }
+
 
     @GetMapping("/patient/update/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
@@ -79,7 +91,7 @@ public class FrontController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth,
             Model model
     ) {
-        // ⚠️ le patient-service attend nom/prenom/dateDeNaissance
+        //  le patient-service attend nom/prenom/dateDeNaissance
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(patientServiceUrl + "/api/patients/search");
 

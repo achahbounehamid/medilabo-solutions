@@ -11,42 +11,31 @@ services:
       - mongo_data:/data/db
 
   # Base MySQL pour patient-service
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_DATABASE: patientsdb
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+#  mysql:
+#    image: mysql:8.0
+#    container_name: mysql
+#    command: --default-authentication-plugin=mysql_native_password
+#    environment:
+#      MYSQL_DATABASE: patientsdb
+#      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+#
+#    ports:
+#      - "3308:3306"
+#    networks:
+#      - medilabo-network
+#    volumes:
+#      - mysql_data:/var/lib/mysql
 
-    ports:
-      - "3308:3306"
-    networks:
-      - medilabo-network
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: phpmyadmin
-    depends_on: [ mysql ]
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-    ports:
-      - "8082:80"
-    networks:
-      - medilabo-network
 
 
   patient-service:
     build: ./patient-service
     container_name: patient-service
-    depends_on:
-      - mysql
+#    depends_on:
+#      - mysql
     environment:
       # Force la datasource vers *medilabo* (passe devant application.properties)
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: medilabo
       SPRING_DATASOURCE_PASSWORD: medipass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -127,7 +116,7 @@ services:
 
 networks:
   medilabo-network:
-    driver: bridge
+   driver: bridge
 
 volumes:
   mongo_data:

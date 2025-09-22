@@ -56,7 +56,7 @@ public class PatientController {
         }
     }
 
-    // ⚠️ Aligner les noms avec le modèle/repository: nom, prenom, dateDeNaissance
+    //  Aligner les noms avec le modèle/repository: nom, prenom, dateDeNaissance
     @GetMapping("/search")
     public List<Patient> searchPatients(
             @RequestParam(required = false) String nom,

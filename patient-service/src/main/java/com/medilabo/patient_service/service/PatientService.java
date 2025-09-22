@@ -16,43 +16,6 @@ import java.util.Optional;
 @Service
 public class PatientService {
 
-
-//    @Autowired
-//    private PatientRepository patientRepository;
-//
-//
-//
-//    // Ajouter un utilisateur
-//    public Patient save(Patient patient) {
-//        return patientRepository.save(patient);
-//    }
-//
-//    // Lister tous les utilisateurs
-//    public List<Patient> findAll() {
-//
-//        return patientRepository.findAll();
-//    }
-//    public List<Patient> search(String lastName, String firstName, LocalDate dateOfBirth) {
-//        if (lastName != null && !lastName.isEmpty()) {
-//            return patientRepository.findByNomIgnoreCase(lastName);
-//        }
-//        // Ajoute d'autres cas combinés si besoin
-//        return patientRepository.findAll(); // par défaut, retourne tout
-//    }
-//
-//
-//    // Trouver un utilisateur par son ID
-//    public Optional<Patient> findById(Long id) {
-//
-//        return patientRepository.findById(id);
-//    }
-//
-//    // Supprimer un utilisateur
-//    public void deleteById(Long id) {
-//
-//        patientRepository.deleteById(id);
-//    }
-
     private final PatientRepository patientRepository;
 
     public PatientService(PatientRepository patientRepository) {
