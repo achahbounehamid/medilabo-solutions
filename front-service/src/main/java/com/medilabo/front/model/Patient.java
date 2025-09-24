@@ -17,10 +17,13 @@ public class Patient {
     private String prenom;
 
     private LocalDate dateDeNaissance;
+
+    @NotBlank(message = "Le genre est obligatoire")
     private String genre;
     private String adresse;
 
     @NotBlank(message = "Le téléphone est obligatoire")
-    @Pattern(regexp = "\\d{10,15}", message = "Le téléphone doit contenir 10 à 15 chiffres.")
+    @Pattern(regexp = "\\d{10,15}",
+            message = "Le téléphone doit contenir uniquement des chiffres (10 à 15).")
     private String telephone;
 }

@@ -17,9 +17,8 @@ public class NoteService {
     public List<Note> getAllNotes() {
         return noteRepository.findAll();
     }
-
-    public List<Note> getNotesByPatientId(Integer patientId) {
-        return noteRepository.findByPatientId(patientId);
+    public List<Note> getNotesByPatientIdDesc(Integer patientId) {
+        return noteRepository.findByPatientIdOrderByCreatedAtDesc(patientId);
     }
 
     public Optional<Note> getNoteById(String id) {

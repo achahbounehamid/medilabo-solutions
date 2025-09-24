@@ -1,133 +1,153 @@
--Présentation du projet 
+Présentation
 
-MedilaboSolutions est une application médicale dédiée à la gestion des patients, des notes médicales et à l’évaluation du risque de diabète.
-L’application est conçue pour les secrétaires et les médecins, qui peuvent ajouter/modifier des patients, renseigner des notes médicales, et consulter une estimation du risque de diabète selon des critères médicaux précis.
+MedilaboSolutions est une application médicale pour :
 
--Prérequis
+gérer les patients (MySQL),
 
-Avant de commencer, assurez-vous d’avoir installé sur votre machine :
+enregistrer des notes médicales (MongoDB),
+
+évaluer le risque de diabète (microservice dédié).
+
+Public cible : secrétaires & médecins.
+
+Architecture
+
+front-service (Thymeleaf, port 8081) – UI
+
+gateway-service (Spring Cloud Gateway, port 8080) – reverse proxy/API
+
+patient-service (Spring Boot, JPA/Hibernate, MySQL, port 9001)
+
+note-service (Spring Boot, Spring Data MongoDB, port 9002)
+
+diabetes-risk-service (Spring Boot, port 9003)
+
+Ports & URLs
+Service	Port	Rôle	           URL
+Front	8081	UI  	           http://localhost:8081
+
+Gateway	8080	Proxy API	       http://localhost:8080
+
+Patient	9001	API Patients       http://localhost:9001/api/patients
+
+Note	9002	API Notes	       http://localhost:9002/api/notes
+
+Risk	9003	API Risque	       http://localhost:9003/api/risk
+
+MongoDB	27017	DB NoSQL	       mongodb://localhost:27017
+
+Les appels UI → API passent via la gateway (/api/**).
+
+Prérequis
 
 Java 17
 
 MySQL 8.x
 
-MongoDB 7.x
+MongoDB 4.4 (ou monte l’image et change ce texte si tu vises 7.x)
 
-Docker et Docker Compose (facultatif, recommandé pour un lancement rapide)
+Docker & Docker Compose
 
-Un IDE Java (IntelliJ, Eclipse, VSCode…)
-
-Java 17
-MySQL 8.1
-MongoDb 7.0.11
-Docker (facultatif)
-IDE comme Intellij / Eclipse
-
--Conception
-
-Le projet repose sur une architecture microservices.
-Il est composé de:
-
-front-service : application front-end en Thymeleaf, pour l’interface utilisateur
-
-gateway-service : passerelle d’API (Spring Cloud Gateway)
-
-patient-service : gestion des patients, stockage MySQL
-
-note-service : gestion des notes médicales, stockage MongoDB
-
-diabetes-risk-service : calcul du risque de diabète
-
-Bases de données : MySQL pour les patients, MongoDB pour les notes
-
-Chaque microservice communique avec les autres via des APIs REST et la gateway, selon la logique suivante de:
-
-![](C:\Users\hacha\Documents\structure.PNG)
-
-
--Sécurité
-
-L’application utilise Spring Security.
-
-Les utilisateurs doivent s’authentifier pour accéder aux fonctionnalités (connexion obligatoire).
-
-Un JWT (token) est généré à la connexion et transmis dans l’en-tête de chaque requête.
-
-La gateway et chaque microservice vérifient la validité du token avant d’autoriser l’accès aux ressources.
-
-Les mots de passe sont stockés de manière sécurisée (BCrypt).
-
--Utilisation de MedilaboSolutions
+IDE Java (IntelliJ)
 
 Lancement avec Docker
-
-1-Cloner le dépôt du projet de:
-
-git clone https://github.com/ton-compte/medilabo-solutions.git
+git clone <repo>
 cd medilabo-solutions
-
-2-Construire et lancer tous les services :
-
-docker-compose up --build
-
-3-Accéder à l’application via de:
-http://localhost:8080
+docker compose up --build
 
 
-Lancement manuel (sans Docker)
+UI : http://localhost:8081
 
-1-Démarrer MySQL et MongoDB sur votre machine.
+API (via gateway) : http://localhost:8080
 
-2-Configurer les accès BDD dans application.properties de chaque microservice (patient-service et note-service).
+Si MySQL est local (WAMP/XAMPP), patient-service utilise :
+SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/patientsdb?...
+Identifiants à renseigner dans docker-compose.yml.
 
-3-Compiler chaque microservice (via Maven).
+Lancement manuel
 
-4-Démarrer les microservices un par un (ordre conseillé : bases, patient, note, diabetes-risk, gateway, front).
+Démarrer MySQL & MongoDB
 
-5-Accéder à l’application via http://localhost:8080.
+Configurer application.properties :
 
--Aperçu
+patient-service → datasource MySQL
 
-Pages principales de l’application :
+note-service → spring.data.mongodb.uri=mongodb://localhost:27017/notedb
 
-Page de connexion
+mvn clean package sur chaque service
 
-Accueil (liste des patients)
+Démarrer l’ordre : patient → note → risk → gateway → front
 
-Ajout/Modification d’un patient
+UI : http://localhost:8081
 
-Fiche patient (infos + notes médicales + risque de diabète)
+Sécurité
 
-Ajout/Modification d’une note médicale
+Authentification form-login (Spring Security).
 
--Green Code – Éco-conception logicielle
+Les ressources statiques & WebJars sont autorisées (/webjars/**, /css/**, …).
 
-*Le niveau de log est limité à “info” pour réduire l’écriture sur disque et la consommation des ressources.
+Fonctionnalités (par sprint)
 
-*Les données sensibles (adresse, téléphone, genre) ne sont affichées que sur la fiche patient, pas sur la liste globale.
+Sprint 1 – Patients
 
-*Le niveau de risque de diabète est stocké après calcul, pour éviter de recalculer à chaque consultation. On recalcule uniquement quand une note est ajoutée.
+Affichage des infos nom, prénom, date de naissance, genre, adresse, téléphone.
 
-*Utilisation d’images Docker allégées (openjdk:17-jdk-alpine) pour limiter l’espace disque et l’énergie consommée lors des déploiements.
+Ajout & Modification d’un patient.
 
-*Utilisation de Spring Data JPA pour éviter les requêtes “SELECT *” et ne charger que les données nécessaires.
+Adresse & téléphone sont optionnels.
 
--Suggestions d’amélioration
+Sprint 2 – Notes (MongoDB)
 
-Mettre en place un cache sur les données peu volatiles.
+Affichage de l’historique des notes d’un patient.
 
-Optimiser encore les requêtes SQL côté patient-service.
+Ajout/Modification/Suppression d’une note.
 
-Ajouter une politique d’archivage/rotation des logs.
+Mise en forme conservée (retours à la ligne) côté UI :
 
-Mettre en place un monitoring (ex: Prometheus, Grafana) pour suivre la consommation CPU/mémoire des microservices.
+<td style="white-space: pre-wrap" th :text="${note.content}"></td>
 
-Externaliser la configuration via Spring Cloud Config pour une gestion centralisée.
+Sprint 3 – Rapport de risque de diabète
 
-Ajouter la suppression d’un patient et la modification/suppression d’une note.
+Calcul du risque : None / Borderline / In Danger / Early onset
 
-Ajouter un service de découverte (Eureka) pour rendre l’architecture encore plus dynamique.
+Règles métier implémentées (âge + genre + nb de déclencheurs).
+
+Déclencheurs recherchés dans les notes : Hemoglobine A1C, Microalbumin, Height, Weight, Smoker/Fumeur/Fumeuse, Abnormal/Anormal, Cholesterol/Cholestérol, Dizziness/Vertiges, Relapse/Rechute, Reaction/Réaction, Antibodies/Anticorps…
+(liste complète dans le code du service de risque)
+
+Jeu de données (démo)
+
+Patients : quelques entrées de test en MySQL.
+
+Notes : import des cas de tests fournis (Sprint 2) dans MongoDB (notedb.notes).
+Exemple d’insertion :
+
+{ "patientId": 81, "content": "Le patient déclare ...", "createdAt": "2025-09-23T19:33:30Z" }
+
+Green Code
+
+Logs en INFO (limite l’I/O disque).
+
+Images Docker allégées.
+
+Données privées non affichées sur les listes (affichage détaillé en fiche).
+
+(Optionnel) Cache sur résultats de risque si besoin.
+
+Améliorations possibles
+
+JWT / OAuth2
+
+Cache des calculs
+
+Monitoring (Prometheus/Grafana)
+
+Spring Cloud Config / Eureka
+
+Optimisations SQL & index Mongo
+
+Politique de rotation des logs
 
 Contact
-Projet réalisé par ACHAHBOUNE hamid dans le cadre du parcours Développeur d’Application Java / OpenClassrooms.
 
+Projet réalisé par ACHAHBOUNE Hamid – Parcours Développeur d’Application Java, OpenClassrooms.

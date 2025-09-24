@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Ajouter un patient</title>
@@ -10,7 +10,7 @@
     <h2>Ajouter un patient</h2>
 
     <form th:action="@{/patients/add}" th:object="${patient}" method="post">
-        <!-- CSRF obligatoire avec Spring Security -->
+        <!-- CSRF -->
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
         <div class="mb-3">
@@ -49,13 +49,34 @@
 
         <div class="mb-3">
             <label class="form-label" for="telephone">Téléphone</label>
-            <input id="telephone" class="form-control" th:field="*{telephone}"
+            <input id="telephone" class="form-control"
+                   th:field="*{telephone}"
+                   type="tel"
                    required
                    inputmode="numeric"
-                   pattern="^\d{10,15}$"
+                   pattern="[0-9]{10,15}"
                    maxlength="15"
-                   oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                   title="Uniquement des chiffres (10 à 15)." />
+                   title="Uniquement des chiffres (10 à 15)."
+                   oninput="
+               this.setCustomValidity('');
+               const before = this.value;
+               const onlyDigits = before.replace(/\D/g,'');
+               const msg = this.nextElementSibling; // <div class='form-text'>
+               if (before !== onlyDigits) {
+                 msg.hidden = false;
+                 msg.textContent = 'Veuillez entrer uniquement des chiffres (10 à 15).';
+               } else {
+                 msg.hidden = true;
+                 msg.textContent = '';
+               }
+               this.value = onlyDigits;
+             "
+                   oninvalid="this.setCustomValidity('Veuillez entrer uniquement des chiffres (10 à 15).')"
+            />
+            <!-- message info côté client (immédiat) -->
+            <div class="form-text" hidden></div>
+
+            <!-- message d’erreur côté serveur (Jakarta Validation) -->
             <div class="text-danger" th:if="${#fields.hasErrors('telephone')}" th:errors="*{telephone}"></div>
         </div>
 

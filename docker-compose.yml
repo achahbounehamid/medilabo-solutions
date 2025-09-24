@@ -4,37 +4,18 @@ services:
     image: mongo:4.4
     container_name: mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"
     networks:
       - medilabo-network
     volumes:
       - mongo_data:/data/db
 
-  # Base MySQL pour patient-service
-#  mysql:
-#    image: mysql:8.0
-#    container_name: mysql
-#    command: --default-authentication-plugin=mysql_native_password
-#    environment:
-#      MYSQL_DATABASE: patientsdb
-#      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-#
-#    ports:
-#      - "3308:3306"
-#    networks:
-#      - medilabo-network
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-
-
-
   patient-service:
     build: ./patient-service
     container_name: patient-service
-#    depends_on:
-#      - mysql
+
     environment:
-      # Force la datasource vers *medilabo* (passe devant application.properties)
+
       SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: medilabo
       SPRING_DATASOURCE_PASSWORD: medipass
@@ -80,6 +61,7 @@ services:
     depends_on:
       - patient-service
       - diabetes-risk-service
+      - note-service
     environment:
       SERVER_PORT: 8080
       PATIENT_SERVICE_URL: http://patient-service:9001
@@ -90,6 +72,9 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://front-service:8081
       SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/login,/css/**,/js/**,/images/**,/assets/**
 
+      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: note-service
+      SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://note-service:9002
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/api/notes,/api/notes/**
     ports:
       - "8080:8080"
     networks:
@@ -103,7 +88,6 @@ services:
       - note-service
       - diabetes-risk-service
     environment:
-      # Spring Boot fait le mapping ENV -> propriétés (SERVER_PORT -> server.port, etc.)
       SERVER_PORT: 8081
       PATIENT_SERVICE_URL: http://patient-service:9001
       NOTE_SERVICE_URL: http://note-service:9002

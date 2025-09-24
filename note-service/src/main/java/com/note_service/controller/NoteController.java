@@ -5,8 +5,6 @@ import com.note_service.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -23,7 +21,9 @@ public class NoteController {
 
     @GetMapping("/patient/{patientId}")
     public List<Note> getNotesByPatient(@PathVariable Integer patientId) {
-        return noteService.getNotesByPatientId(patientId);
+        //  Assure-toi que noteService utilise le repo trié, sinon renvoie ici le tri
+        return noteService.getNotesByPatientIdDesc(patientId);
+        // (ou directement repo.findByPatientIdOrderByCreatedAtDesc(patientId) si tu n'as pas de service)
     }
 
     @GetMapping("/{id}")
@@ -35,15 +35,21 @@ public class NoteController {
 
     @PostMapping
     public Note addNote(@RequestBody Note note) {
-        note.setCreatedAt(LocalDateTime.now());
+        //  NE PAS setter createdAt ici (auditing s'en occupe)
+        //  note.setCreatedAt(LocalDateTime.now());  // À supprimer
         return noteService.saveNote(note);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Note> updateNote(@PathVariable String id, @RequestBody Note updatedNote) {
+        // (Optionnel) 400 si id du body != id du path
+        if (updatedNote.getId() != null && !id.equals(updatedNote.getId())) {
+            return ResponseEntity.badRequest().build();
+        }
         return noteService.getNoteById(id)
                 .map(note -> {
-                    note.setContent(updatedNote.getContent());
+                    note.setContent(updatedNote.getContent()); // content-only
+                    // updatedAt sera mis à jour par @LastModifiedDate
                     return ResponseEntity.ok(noteService.saveNote(note));
                 })
                 .orElse(ResponseEntity.notFound().build());

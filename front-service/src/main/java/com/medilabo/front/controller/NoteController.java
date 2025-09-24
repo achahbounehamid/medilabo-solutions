@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @Controller
@@ -45,7 +44,7 @@ public class NoteController {
         Note note = new Note();
         note.setPatientId(patientId);
         note.setContent(content);
-        note.setCreatedAt(LocalDateTime.now());
+//        note.setCreatedAt(LocalDateTime.now());
 
         restTemplate.postForEntity(noteServiceUrl + "/api/notes", note, Note.class);
         return "redirect:/notes/patient/" + patientId;
@@ -63,10 +62,12 @@ public class NoteController {
                              @RequestParam String content,
                              @RequestParam Integer patientId) {
         Note updatedNote = new Note();
+        updatedNote.setId(id);
         updatedNote.setContent(content);
         updatedNote.setPatientId(patientId);
 
         restTemplate.put(noteServiceUrl + "/api/notes/" + id, updatedNote);
+
         return "redirect:/notes/patient/" + patientId;
     }
     @GetMapping("/delete/{id}")

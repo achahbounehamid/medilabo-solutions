@@ -5,7 +5,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 
-public interface NoteRepository extends MongoRepository<Note, String> {
-    List<Note> findByPatientId(Integer patientId);
-}
+//public interface NoteRepository extends MongoRepository<Note, String> {
+//    List<Note> findByPatientId(Integer patientId);
+//}
 
+public interface NoteRepository extends MongoRepository<Note, String> {
+    List<Note> findByPatientIdOrderByCreatedAtDesc(Integer patientId); // <-- tri
+}

@@ -78,6 +78,8 @@ public class FrontController {
         return "redirect:/homePage";
     }
 
+
+
     @GetMapping("/patient/delete/{id}")
     public String deletePatient(@PathVariable Long id) {
         restTemplate.delete(patientServiceUrl + "/api/patients/" + id);

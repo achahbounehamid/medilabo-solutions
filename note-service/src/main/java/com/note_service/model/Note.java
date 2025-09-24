@@ -1,10 +1,13 @@
 package com.note_service.model;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+
 
 @Document(collection = "notes")
 @Getter
@@ -19,5 +22,12 @@ public class Note {
 
     private Integer patientId;
     private String content;
-   private LocalDateTime createdAt;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
+
+
 }
