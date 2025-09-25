@@ -1,81 +1,84 @@
+
 package com.medilabo.front.controller;
 
-
-import org.springframework.ui.Model;
-import com.medilabo.front.model.Note;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import java.util.Arrays;
+
+import java.util.*;
+
 
 @Controller
 @RequestMapping("/notes")
 public class NoteController {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    @Value("${note.service.url}")
-    private String noteServiceUrl;
-
-    // GET : Liste des notes par patient
-    @GetMapping("/patient/{patientId}")
-    public String getNotesByPatient(@PathVariable Integer patientId, Model model) {
-        ResponseEntity<Note[]> response = restTemplate.getForEntity(
-                noteServiceUrl + "/api/notes/patient/" + patientId, Note[].class);
-        model.addAttribute("notes", Arrays.asList(response.getBody()));
-        model.addAttribute("patientId", patientId);
-        return "noteListPage";
+    public NoteController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
-    // GET : Formulaire pour ajouter une note
+    @Value("${note.service.url}")
+    private String noteServiceUrl; // ex: http://note-service:9002
+
+    // Liste des notes d’un patient
+    @GetMapping("/patient/{patientId}")
+    public String list(@PathVariable Integer patientId, Model model) {
+        ResponseEntity<List> resp = restTemplate.getForEntity(
+                noteServiceUrl + "/api/notes/patient/{id}", List.class, patientId);
+        model.addAttribute("notes", resp.getBody());
+        model.addAttribute("patientId", patientId);
+        return "notesListPage";
+    }
+
+    // Formulaire d’ajout
     @GetMapping("/add/{patientId}")
-    public String showAddNoteForm(@PathVariable Integer patientId, Model model) {
+    public String addForm(@PathVariable Integer patientId, Model model) {
         model.addAttribute("patientId", patientId);
         return "addNotePage";
     }
 
-    // POST : Soumettre la note
+    // Soumission d’ajout
     @PostMapping("/add/{patientId}")
-    public String addNote(@PathVariable Integer patientId, @RequestParam String content) {
-        Note note = new Note();
-        note.setPatientId(patientId);
-        note.setContent(content);
-//        note.setCreatedAt(LocalDateTime.now());
-
-        restTemplate.postForEntity(noteServiceUrl + "/api/notes", note, Note.class);
+    public String create(@PathVariable Integer patientId,
+                         @RequestParam String content) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("patientId", patientId);
+        body.put("content", content);
+        restTemplate.postForEntity(noteServiceUrl + "/api/notes", body, Void.class);
         return "redirect:/notes/patient/" + patientId;
     }
 
+    // Formulaire de modification
     @GetMapping("/update/{id}")
-    public String showUpdateNoteForm(@PathVariable String id, Model model) {
-        ResponseEntity<Note> response = restTemplate.getForEntity(noteServiceUrl + "/api/notes/" + id, Note.class);
-        model.addAttribute("note", response.getBody());
+    public String editForm(@PathVariable String id, Model model) {
+        Map note = restTemplate.getForObject(
+                noteServiceUrl + "/api/notes/{id}", Map.class, id);
+        if (note == null) return "redirect:/homePage";
+        model.addAttribute("note", note);
         return "updateNotePage";
     }
 
+    // Soumission de modification
     @PostMapping("/update/{id}")
-    public String updateNote(@PathVariable String id,
-                             @RequestParam String content,
-                             @RequestParam Integer patientId) {
-        Note updatedNote = new Note();
-        updatedNote.setId(id);
-        updatedNote.setContent(content);
-        updatedNote.setPatientId(patientId);
-
-        restTemplate.put(noteServiceUrl + "/api/notes/" + id, updatedNote);
-
-        return "redirect:/notes/patient/" + patientId;
-    }
-    @GetMapping("/delete/{id}")
-    public String deleteNote(@PathVariable String id,
-                             @RequestParam Integer patientId) {
-        restTemplate.delete(noteServiceUrl + "/api/notes/" + id);
+    public String update(@PathVariable String id,
+                         @RequestParam String content,
+                         @RequestParam Integer patientId) { // hidden dans le form
+        Map<String, Object> body = new HashMap<>();
+        body.put("id", id);
+        body.put("content", content);
+        restTemplate.put(noteServiceUrl + "/api/notes/{id}", body, id);
         return "redirect:/notes/patient/" + patientId;
     }
 
-
+    // Suppression (si tu as un bouton “Supprimer”)
+    @PostMapping("/delete/{id}")
+    public String delete(@PathVariable String id,
+                         @RequestParam Integer patientId) {
+        restTemplate.delete(noteServiceUrl + "/api/notes/{id}", id);
+        return "redirect:/notes/patient/" + patientId;
+    }
 }
