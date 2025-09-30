@@ -29,7 +29,8 @@
         </tr>
         <tr th:each="note : ${notes}">
             <td th:text="${note.content}"></td>
-            <td th:text="${#temporals.format(note.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+            <td th:text="${note.createdAt != null ? #temporals.format(note.createdAt, 'dd-MM-yyyy HH:mm') : 'Non défini'}"></td>
+
             <td>
                 <a class="btn btn-success btn-sm me-2"
                    th:href="@{/notes/update/{id}(id=${note.id})}">

@@ -22,7 +22,7 @@ public class NoteController {
     }
 
     @Value("${note.service.url}")
-    private String noteServiceUrl; // ex: http://note-service:9002
+    private String noteServiceUrl;
 
     // Liste des notes d’un patient
     @GetMapping("/patient/{patientId}")
@@ -66,7 +66,7 @@ public class NoteController {
     @PostMapping("/update/{id}")
     public String update(@PathVariable String id,
                          @RequestParam String content,
-                         @RequestParam Integer patientId) { // hidden dans le form
+                         @RequestParam Integer patientId) {
         Map<String, Object> body = new HashMap<>();
         body.put("id", id);
         body.put("content", content);
@@ -74,7 +74,7 @@ public class NoteController {
         return "redirect:/notes/patient/" + patientId;
     }
 
-    // Suppression (si tu as un bouton “Supprimer”)
+    // Suppression
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable String id,
                          @RequestParam Integer patientId) {

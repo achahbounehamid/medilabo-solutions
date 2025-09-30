@@ -33,8 +33,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: medilabo
       SPRING_DATASOURCE_PASSWORD: medipass
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: update(j'ai enlevé)
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_JPA_SHOW_SQL: "true"
+
+        # Flyway (force le baseline UNE FOIS sur la base déjà existante)j'ai rajouté
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      SPRING_FLYWAY_BASELINE_VERSION: "1"   # on considère V1 déjà appliquée
+
       SERVER_PORT: 9001
     ports:
       - "9001:9001"

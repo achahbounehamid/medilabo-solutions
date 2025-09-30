@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +17,8 @@ public class Note {
     private Integer patientId;
     private String content;
     private LocalDateTime createdAt;
+//
+//    private OffsetDateTime createdAt; // ou LocalDateTime / Instant
+
+
 }
