@@ -2,6 +2,7 @@ package com.medilabo.front.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,10 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/css/**", "/js/**", "/webjars/**", "/images/**", "/assets/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/homePage", "/patient/infos/**").authenticated()
+//                        .requestMatchers(HttpMethod.POST, "/patient/**/notes").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/notes/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/notes/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
