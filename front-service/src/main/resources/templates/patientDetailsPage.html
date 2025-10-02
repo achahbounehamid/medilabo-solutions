@@ -1,28 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="fr" xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>Fiche Patient</title>-->
-<!--    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">-->
-<!--</head>-->
-<!--<body>-->
-<!--<div class="container mt-4">-->
-<!--    <h2>Fiche du patient</h2>-->
-<!--    <ul class="list-group">-->
-<!--        <li class="list-group-item">Nom : <span th:text="${patient.nom}"></span></li>-->
-<!--        <li class="list-group-item">Prénom : <span th:text="${patient.prenom}"></span></li>-->
-<!--        <li class="list-group-item">Date de naissance : <span th:text="${#temporals.format(patient.dateDeNaissance, 'dd-MM-yyyy')}"></span></li>-->
-<!--        <li class="list-group-item">Genre : <span th:text="${patient.genre}"></span></li>-->
-<!--        <li class="list-group-item">Adresse : <span th:text="${patient.adresse}"></span></li>-->
-<!--        <li class="list-group-item">Téléphone : <span th:text="${patient.telephone}"></span></li>-->
-<!--    </ul>-->
-<!--    <div class="alert alert-warning mt-4">-->
-<!--        Risque de diabète : <strong th:text="${riskLevel}">-</strong>-->
-<!--    </div>-->
-<!--    <a class="btn btn-primary" th:href="@{/homePage}">Retour</a>-->
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -44,8 +19,8 @@
     </div>
 
     <!-- Alerte éventuelle -->
-    <div th:if="${msg}" class="alert alert-success" role="alert" th:text="${msg}"></div>
-    <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+    <div th:if="${msg}"   class="alert alert-success" role="alert" th:text="${msg}"></div>
+    <div th:if="${error}" class="alert alert-danger"  role="alert" th:text="${error}"></div>
 
     <!-- Titre + niveau de risque -->
     <div class="d-flex align-items-center flex-wrap gap-3 mb-3">
@@ -59,7 +34,7 @@
             <div class="row gy-2">
                 <div class="col-md-4">
                     <div class="small text-muted">Date de naissance</div>
-                    <div th:text="${#temporals.format(patient.dateDeNaissance, 'dd-MM-yyyy')}">01-01-1970</div>
+                    <div th:text="${patient.dateDeNaissance != null ? #temporals.format(patient.dateDeNaissance, 'dd-MM-yyyy') : '—'}">01-01-1970</div>
                 </div>
                 <div class="col-md-4">
                     <div class="small text-muted">Sexe</div>
@@ -87,7 +62,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h2 class="h5 mb-0">Notes médicales</h2>
                 <span class="badge text-bg-secondary"
-                      th:text="${notes != null} ? ${#lists.size(notes)} + ' note(s)' : '0 note'">0 note</span>
+                      th:text="${notes != null ? #lists.size(notes) + ' note(s)' : '0 note'}">0 note</span>
             </div>
 
             <div class="card">
@@ -107,7 +82,13 @@
 
                         <tr th:each="n : ${notes}">
                             <td th:text="${n.content}">Contenu...</td>
-                            <td th:text="${#temporals.format(n.createdAt, 'dd-MM-yyyy HH:mm')}">01-01-2025 12:00</td>
+
+                            <!-- Choisis UNE des deux lignes suivantes (avec ou sans conversion de fuseau) -->
+                            <!-- Sans conversion de fuseau -->
+                            <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt, 'dd-MM-yyyy HH:mm') : '—'}"></td>
+                            <!-- Avec conversion vers le fuseau système -->
+                            <!-- <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt.atZoneSameInstant(T(java.time.ZoneId).systemDefault()), 'dd-MM-yyyy HH:mm') : '—'}"></td> -->
+
                             <td class="text-end">
                                 <a class="btn btn-sm btn-success me-2" th:href="@{|/notes/update/${n.id}|}">Modifier</a>
                                 <form class="d-inline" th:action="@{|/notes/delete/${n.id}|}" method="post"
@@ -136,8 +117,6 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Ajouter</button>
                     </form>
-
-
                 </div>
             </div>
         </div>

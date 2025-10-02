@@ -42,7 +42,7 @@ Patient Svc   Note Svc   Diabetes-Risk Svc
 ```
 
 > Schéma :  
-> ![Architecture](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\conception.PNG)
+> ![Architecture](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\medilabo-solutions\front-service\src\main\resources\static\assets\conception.PNG)
 
 ---
 
@@ -62,12 +62,12 @@ Patient Svc   Note Svc   Diabetes-Risk Svc
 ## Aperçu (captures)
 
 - **Login**  
-  ![Login](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\login.PNG)
+  ![Login](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\medilabo-solutions\front-service\src\main\resources\static\assets\login.PNG)
 
 - **Page d’accueil**  
-  ![Home](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\homePage.PNG)
+  ![Home](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\medilabo-solutions\front-service\src\main\resources\static\assets\homePage.PNG)
 - **Fiche patient (ajout un patient)**
-- ![Ajouter un  patient](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\AjoutePatient.PNG)
+- ![Ajouter un  patient](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\medilabo-solutions\front-service\src\main\resources\static\assets\AjoutePatient.PNG)
 - **Fiche patient (notes + risque)**  
   ![Détails patient](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\pageDetailsPatient.PNG)
 

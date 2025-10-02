@@ -222,49 +222,105 @@ public class FrontController {
 
     /* -------- Recherche (rendue dans homePage) -------- */
 
-    @GetMapping("/patients/search")
-    public String searchPatients(@RequestParam(required = false) String lastName,
-                                 @RequestParam(required = false) String firstName,
-                                 @RequestParam(required = false)
-                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth,
-                                 Model model) {
+//    @GetMapping("/patients/search")
+//    public String searchPatients(@RequestParam(required = false) String lastName,
+//                                 @RequestParam(required = false) String firstName,
+//                                 @RequestParam(required = false)
+//                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth,
+//                                 Model model) {
+//
+//        var builder = UriComponentsBuilder
+//                .fromHttpUrl(patientServiceUrl + "/api/patients/search");
+//        if (lastName != null && !lastName.isBlank())  builder.queryParam("nom", lastName);
+//        if (firstName != null && !firstName.isBlank()) builder.queryParam("prenom", firstName);
+//        if (dateOfBirth != null)                       builder.queryParam("dateDeNaissance", dateOfBirth);
+//
+//        ResponseEntity<Patient[]> response =
+//                restTemplate.getForEntity(builder.toUriString(), Patient[].class);
+//        Patient[] results = response.getBody();
+//
+//        model.addAttribute("lastName", lastName);
+//        model.addAttribute("firstName", firstName);
+//        model.addAttribute("dateOfBirth", dateOfBirth);
+//
+//        if (results == null || results.length == 0) {
+//            model.addAttribute("patients", List.of());
+//            model.addAttribute("errorMessage", "Aucun patient trouvé avec ces critères.");
+//            return "homePage";
+//        }
+//
+//        if (results.length == 1 && results[0].getId() != null) {
+//            Long id = results[0].getId();
+//            try {
+//                restTemplate.getForEntity(patientServiceUrl + "/api/patients/" + id, Patient.class); // pré-check
+//                return "redirect:/patient/infos/" + id;
+//            } catch (Exception e) {
+//                model.addAttribute("patients", Arrays.asList(results));
+//                model.addAttribute("errorMessage", "Patient trouvé, mais la fiche (id=" + id + ") est introuvable.");
+//                return "homePage";
+//            }
+//        }
+//
+//        model.addAttribute("patients", Arrays.asList(results));
+//        model.addAttribute("successMessage", results.length + " patients trouvés.");
+//        return "homePage";
+//    }
+@GetMapping("/patients/search")
+public String searchPatients(
+        @RequestParam(required = false) String lastName,
+        @RequestParam(required = false) String firstName,
+        @RequestParam(required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth,
+        Model model,
+        RedirectAttributes ra) {
 
-        var builder = UriComponentsBuilder
-                .fromHttpUrl(patientServiceUrl + "/api/patients/search");
-        if (lastName != null && !lastName.isBlank())  builder.queryParam("nom", lastName);
-        if (firstName != null && !firstName.isBlank()) builder.queryParam("prenom", firstName);
-        if (dateOfBirth != null)                       builder.queryParam("dateDeNaissance", dateOfBirth);
+    // Construit l’URL vers le service patient
+    UriComponentsBuilder builder = UriComponentsBuilder
+            .fromHttpUrl(patientServiceUrl + "/api/patients/search");
 
-        ResponseEntity<Patient[]> response =
+    if (lastName != null && !lastName.isBlank()) {
+        builder.queryParam("nom", lastName.trim());
+    }
+    if (firstName != null && !firstName.isBlank()) {
+        builder.queryParam("prenom", firstName.trim());
+    }
+    if (dateOfBirth != null) {
+        builder.queryParam("dateDeNaissance", dateOfBirth);
+    }
+
+    // garde les critères pour réafficher dans homePage
+    model.addAttribute("lastName", lastName);
+    model.addAttribute("firstName", firstName);
+    model.addAttribute("dateOfBirth", dateOfBirth);
+
+    Patient[] results;
+    try {
+        ResponseEntity<Patient[]> resp =
                 restTemplate.getForEntity(builder.toUriString(), Patient[].class);
-        Patient[] results = response.getBody();
-
-        model.addAttribute("lastName", lastName);
-        model.addAttribute("firstName", firstName);
-        model.addAttribute("dateOfBirth", dateOfBirth);
-
-        if (results == null || results.length == 0) {
-            model.addAttribute("patients", List.of());
-            model.addAttribute("errorMessage", "Aucun patient trouvé avec ces critères.");
-            return "homePage";
-        }
-
-        if (results.length == 1 && results[0].getId() != null) {
-            Long id = results[0].getId();
-            try {
-                restTemplate.getForEntity(patientServiceUrl + "/api/patients/" + id, Patient.class); // pré-check
-                return "redirect:/patient/infos/" + id;
-            } catch (Exception e) {
-                model.addAttribute("patients", Arrays.asList(results));
-                model.addAttribute("errorMessage", "Patient trouvé, mais la fiche (id=" + id + ") est introuvable.");
-                return "homePage";
-            }
-        }
-
-        model.addAttribute("patients", Arrays.asList(results));
-        model.addAttribute("successMessage", results.length + " patients trouvés.");
+        results = resp.getBody();
+    } catch (Exception ex) {
+        model.addAttribute("patients", List.of());
+        model.addAttribute("errorMessage", "Service patient indisponible.");
         return "homePage";
     }
+
+    if (results == null || results.length == 0) {
+        model.addAttribute("patients", List.of());
+        model.addAttribute("errorMessage", "Aucun patient trouvé avec ces critères.");
+        return "homePage";
+    }
+
+    // Un seul résultat → redirection automatique vers la fiche
+    if (results.length == 1 && results[0] != null && results[0].getId() != null) {
+        Long id = results[0].getId();
+        return "redirect:/patient/infos/" + id; // DOIT correspondre à @GetMapping("/patient/infos/{id}")
+    }
+
+    // Plusieurs résultats → liste sur la page d’accueil
+    model.addAttribute("patients", Arrays.asList(results));
+    model.addAttribute("successMessage", results.length + " patients trouvés.");
+    return "homePage";
+}
 
 
 

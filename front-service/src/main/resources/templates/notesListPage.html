@@ -39,14 +39,22 @@
                     <i class="bi bi-pencil-square"></i> Modifier
                 </a>
 
-                <form th:action="@{/notes/delete/{id}(id=${note.id})}" method="post" style="display:inline;">
-                    <input type="hidden" name="patientId" th:value="${patientId}" />
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" class="btn btn-danger btn-sm"
+<!--                <form th:action="@{/notes/delete/{id}(id=${note.id})}" method="post" style="display:inline;">-->
+<!--                    <input type="hidden" name="patientId" th:value="${patientId}" />-->
+<!--                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+<!--                    <button type="submit" class="btn btn-danger btn-sm"-->
+<!--                            onclick="return confirm('Confirmer la suppression de cette note ?');">-->
+<!--                        <i class="bi bi-trash"></i> Supprimer-->
+<!--                    </button>-->
+<!--                </form>-->
+                <form th:action="@{|/notes/delete/${note.id}|}" method="post" class="d-inline">
+                    <input type="hidden" name="patientId" th:value="${patientId}"/>
+                    <button class="btn btn-danger btn-sm"
                             onclick="return confirm('Confirmer la suppression de cette note ?');">
                         <i class="bi bi-trash"></i> Supprimer
                     </button>
                 </form>
+
 
             </td>
         </tr>

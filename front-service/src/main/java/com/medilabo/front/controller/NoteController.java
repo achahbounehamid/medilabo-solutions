@@ -58,28 +58,10 @@ public class NoteController {
         body.put("patientId", patientId);
         body.put("content", content);
         restTemplate.postForEntity(noteServiceUrl + "/api/notes", body, Void.class);
-        return "redirect:/notes/patient/" + patientId;
+//        return "redirect:/notes/patient/" + patientId;
+        return "redirect:/patient/infos/" + patientId;
+
     }
-//    @PostMapping("/add/{patientId}")
-//    public String create(@PathVariable Integer patientId,
-//                         @RequestParam String content,
-//                         RedirectAttributes ra) {
-//        try {
-//            Map<String, Object> body = new HashMap<>();
-//            body.put("patientId", patientId);
-//            body.put("content", content);
-//
-//            // Si tu veux forcer JSON :
-//            // var headers = new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON);
-//            // restTemplate.postForEntity(noteServiceUrl + "/api/notes", new HttpEntity<>(body, headers), Void.class);
-//
-//            restTemplate.postForEntity(noteServiceUrl + "/api/notes", body, Void.class);
-//            ra.addFlashAttribute("successMessage", "Note ajoutée avec succès.");
-//        } catch (Exception e) {
-//            ra.addFlashAttribute("errorMessage", "Impossible d’ajouter la note.");
-//        }
-//        return "redirect:/patient/infos/" + patientId;
-//    }
 
 
     // Formulaire de modification (type fort)
@@ -109,6 +91,8 @@ public class NoteController {
     public String delete(@PathVariable String id,
                          @RequestParam Integer patientId) {
         restTemplate.delete(noteServiceUrl + "/api/notes/{id}", id);
-        return "redirect:/notes/patient/" + patientId;
+//        return "redirect:/notes/patient/" + patientId;
+        return "redirect:/patient/infos/" + patientId;
+
     }
 }

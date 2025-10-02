@@ -12,54 +12,68 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class DiabetesRiskService {
 
-    @Autowired
-    private PatientClient patientClient;
-    @Autowired
-    private NoteClient noteClient;
+    @Autowired private PatientClient patientClient;
+    @Autowired private NoteClient noteClient;
 
-    // Liste de mots-clés à rechercher dans les notes médicales
+    // Triggers EN + FR (ajuste/complète si besoin)
     private static final List<String> TRIGGERS = Arrays.asList(
-            "hemoglobin", "microalbumin", "body height", "body weight", "smoker",
-            "abnormal", "cholesterol", "dizziness", "relapse", "reaction",
-            "antibodies"
+            // EN
+            "hemoglobin a1c", "hemoglobin", "microalbumin", "body height", "height",
+            "body weight", "weight", "smoker", "abnormal", "cholesterol", "dizziness",
+            "relapse", "reaction", "antibodies",
+            // FR équivalents courants
+            "hemoglobine a1c", "hemoglobine", "microalbumine", "taille", "poids",
+            "fumeur", "anormal", "cholesterol", "etourdissement", "etourdissements",
+            "rechute", "reaction", "anticorps",
+            // Termes FR souvent présents dans tes notes
+            "soif excessive", "fatigue persistante", "hyperglycemie", "perte de poids"
     );
+
+    /** Normalise : minuscules + suppression des accents. */
+    private static String normalize(String s) {
+        if (s == null) return "";
+        String n = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", ""); // enlève les diacritiques
+        return n.toLowerCase(java.util.Locale.ROOT);
+    }
 
     /**
      * Calcule le niveau de risque de diabète pour un patient donné.
      * @param patientId ID du patient
-     * @return Niveau de risque ("None", "Borderline", "In Danger", "Early Onset")
+     * @return "None", "Borderline", "In Danger", "Early Onset"
      */
     public String calculerRisque(Long patientId) {
-        // 1. Récupérer le patient et ses notes
+        // 1) Patient + notes
         PatientDto patient = patientClient.getPatientById(patientId);
         List<NoteDto> notes = noteClient.getNotesByPatientId(patientId.intValue());
 
-        // 2. Compter le nombre de déclencheurs (mots-clés) dans les notes
+        // 2) Comptage des triggers sur l’ensemble des notes
         int triggerCount = 0;
         for (NoteDto note : notes) {
-            String content = note.getContent() == null ? "" : note.getContent().toLowerCase();
-            for (String trigger : TRIGGERS) {
-                if (content.contains(trigger)) {
+            String content = normalize(note.getContent());
+            // Option : on ne compte chaque trigger qu’une fois par note
+            boolean[] seen = new boolean[TRIGGERS.size()];
+            for (int i = 0; i < TRIGGERS.size(); i++) {
+                String trig = TRIGGERS.get(i);
+                if (!seen[i] && content.contains(trig)) {
                     triggerCount++;
+                    seen[i] = true;
                 }
             }
         }
 
-        // 3. Calculer l'âge du patient
+        // 3) Âge / genre
         int age = 0;
         if (patient.getDateDeNaissance() != null) {
-            age = Period.between(patient.getDateDeNaissance(), LocalDate.now()).getYears();
+            age = java.time.Period.between(patient.getDateDeNaissance(), java.time.LocalDate.now()).getYears();
         }
-
         String gender = patient.getGenre() == null ? "" : patient.getGenre().toUpperCase();
 
-        // 4. Appliquer les règles du sujet
-        // Exemple de logique à adapter selon ton énoncé
+        // 4) Règles (tes règles actuelles conservées)
         if (triggerCount == 0) return "None";
         if (age > 30) {
             if (triggerCount >= 2 && triggerCount < 6) return "Borderline";
