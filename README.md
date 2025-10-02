@@ -1,153 +1,284 @@
-Présentation
+# MedilaboSolutions
 
-MedilaboSolutions est une application médicale pour :
+MedilaboSolutions est une application médicale permettant de :
+- gérer les **patients** (MySQL),
+- enregistrer des **notes médicales** (MongoDB),
+- **évaluer le risque de diabète** (microservice dédié).
 
-gérer les patients (MySQL),
+Public cible : **secrétaires** & **médecins**.  
+UI réalisée avec **Spring Boot + Thymeleaf**.
 
-enregistrer des notes médicales (MongoDB),
+---
 
-évaluer le risque de diabète (microservice dédié).
+## Sommaire
+- [Architecture](#architecture)
+- [Services & Ports](#services--ports)
+- [Aperçu (captures)](#aperçu-captures)
+- [Prérequis](#prérequis)
+- [Démarrage rapide (Docker)](#démarrage-rapide-docker)
+- [Configuration](#configuration)
+- [Préchargement des données (où et comment)](#préchargement-des-données-où-et-comment)
+- [Lancement manuel (sans Docker)](#lancement-manuel-sans-docker)
+- [Sécurité](#sécurité)
+- [API (référence rapide)](#api-référence-rapide)
+- [Green Code](#green-code)
+- [Améliorations possibles](#améliorations-possibles)
+- [Crédits](#crédits)
 
-Public cible : secrétaires & médecins.
+---
 
-Architecture
+## Architecture
 
-front-service (Thymeleaf, port 8081) – UI
+L’application est composée de 4 microservices + 1 passerelle :
 
-gateway-service (Spring Cloud Gateway, port 8080) – reverse proxy/API
+```
+Utilisateur → Front-end (Thymeleaf)
+               │
+               ▼
+           Gateway (API)
+        ╱      │        ╲
+Patient Svc   Note Svc   Diabetes-Risk Svc
+ (MySQL)      (MongoDB)      (règles métier)
+```
 
-patient-service (Spring Boot, JPA/Hibernate, MySQL, port 9001)
+> Schéma :  
+> ![Architecture](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\conception.PNG)
 
-note-service (Spring Boot, Spring Data MongoDB, port 9002)
+---
 
-diabetes-risk-service (Spring Boot, port 9003)
+## Services & Ports
 
-Ports & URLs
-Service	Port	Rôle	           URL
-Front	8081	UI  	           http://localhost:8081
+| Service                   | Port | Rôle                          | URL locale                                      |
+|---------------------------|------|-------------------------------|-------------------------------------------------|
+| **front-service**         | 8081 | UI (Thymeleaf)                | http://localhost:8081                           |
+| **gateway-service**       | 8080 | Reverse proxy / API           | http://localhost:8080                           |
+| **patient-service**       | 9001 | API Patients (MySQL)          | http://localhost:9001/api/patients              |
+| **note-service**          | 9002 | API Notes (MongoDB)           | http://localhost:9002/api/notes                 |
+| **diabetes-risk-service** | 9003 | API Risque de diabète         | http://localhost:9003/api/diabetes-risk/{id}    |
+| **MongoDB**               | 27017| Base NoSQL                    | mongodb://localhost:27017                       |
 
-Gateway	8080	Proxy API	       http://localhost:8080
+---
 
-Patient	9001	API Patients       http://localhost:9001/api/patients
+## Aperçu (captures)
 
-Note	9002	API Notes	       http://localhost:9002/api/notes
+- **Login**  
+  ![Login](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\login.PNG)
 
-Risk	9003	API Risque	       http://localhost:9003/api/risk
+- **Page d’accueil**  
+  ![Home](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\homePage.PNG)
+- **Fiche patient (ajout un patient)**
+- ![Ajouter un  patient](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\AjoutePatient.PNG)
+- **Fiche patient (notes + risque)**  
+  ![Détails patient](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\pageDetailsPatient.PNG)
 
-MongoDB	27017	DB NoSQL	       mongodb://localhost:27017
+---
 
-Les appels UI → API passent via la gateway (/api/**).
+## Prérequis
 
-Prérequis
+- **Java 17**
+- **MySQL 8.x**
+- **MongoDB** (6.x/7.x)
+- **Docker & Docker Compose** (recommandé)
+- IDE Java (IntelliJ IDEA)
 
-Java 17
+---
 
-MySQL 8.x
+## Démarrage rapide (Docker)
 
-MongoDB 4.4 (ou monte l’image et change ce texte si tu vises 7.x)
-
-Docker & Docker Compose
-
-IDE Java (IntelliJ)
-
-Lancement avec Docker
+```bash
 git clone <repo>
 cd medilabo-solutions
 docker compose up --build
+```
+
+- UI : http://localhost:8081
+- API via gateway : http://localhost:8080
+
+---
+
+## Configuration
+
+### Variables d’environnement (front-service)
+
+Définies dans `docker-compose.yml` :
+```yaml
+environment:
+  SERVER_PORT: 8081
+  PATIENT_SERVICE_URL: http://patient-service:9001
+  NOTE_SERVICE_URL: http://note-service:9002
+  RISK_SERVICE_URL: http://diabetes-risk-service:9003
+```
+
+Défauts (fichier) dans `front-service/src/main/resources/application.properties` :
+```properties
+server.port=8081
+patient.service.url=http://patient-service:9001
+note.service.url=http://note-service:9002
+risk.service.url=http://localhost:9003
+spring.thymeleaf.cache=false
+```
 
 
-UI : http://localhost:8081
+### Datasources
+- **patient-service** : MySQL 
+- **note-service** : `spring.data.mongodb.uri=mongodb://mongo:27017/notedb` (Docker)  
+  ou `mongodb://localhost:27017/notedb` (local)
 
-API (via gateway) : http://localhost:8080
+---
 
-Si MySQL est local (WAMP/XAMPP), patient-service utilise :
-SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/patientsdb?...
-Identifiants à renseigner dans docker-compose.yml.
+## Préchargement des données (où et comment)
 
-Lancement manuel
+### Patients (MySQL) — **Flyway**
+Les patients de démo sont insérés automatiquement au démarrage via **Flyway** :
 
-Démarrer MySQL & MongoDB
+- Dossiers :  
+  `patient-service/src/main/resources/db/migration/`
+- Exemples de fichiers :
+    - `V1__create_tables.sql` (schéma)
+    - `V2__seed_patients.sql` (données de démo)
 
-Configurer application.properties :
+> Les logs montrent l’exécution Flyway au boot (`Successfully validated ...`, `Schema up to date`).
 
-patient-service → datasource MySQL
+### Notes (MongoDB) — **Initialiseur Spring**
+Les notes de démo peuvent être chargées au démarrage du **note-service** via un initialiseur :
 
-note-service → spring.data.mongodb.uri=mongodb://localhost:27017/notedb
+- Classe (ex.) :  
+  `note-service/src/main/java/.../config/DataInitializer.java`  
 
-mvn clean package sur chaque service
+- Ressource (ex.) :  
+  `note-service/src/main/resources/data/notes-demo.json`
 
-Démarrer l’ordre : patient → note → risk → gateway → front
 
-UI : http://localhost:8081
+### Risque de diabète
+Pas de données à précharger : le service calcule le **niveau de risque**
+(None / Borderline / In Danger / Early onset) à la demande, à partir des notes
+et du profil patient.
 
-Sécurité
+---
 
-Authentification form-login (Spring Security).
+## Lancement manuel (sans Docker)
 
-Les ressources statiques & WebJars sont autorisées (/webjars/**, /css/**, …).
+1. **Démarrer MySQL** et créer la base `patientsdb`.
+2. **Démarrer MongoDB** et créer la base `notedb` (ou laissez Spring le faire).
+3. Configurer :
+    - `patient-service/src/main/resources/application.properties` (JDBC MySQL)
+    - `note-service/src/main/resources/application.properties` (URI MongoDB)
+4. Construire :
+   ```bash
+   mvn -q -DskipTests package
+   ```
+5. Démarrer les services **dans cet ordre** :
+    1) `patient-service` → 2) `note-service` → 3) `diabetes-risk-service` → 4) `gateway-service` → 5) `front-service`
+6. Ouvrir l’UI : http://localhost:8081
 
-Fonctionnalités (par sprint)
 
-Sprint 1 – Patients
+---
 
-Affichage des infos nom, prénom, date de naissance, genre, adresse, téléphone.
+## Sécurité
 
-Ajout & Modification d’un patient.
+- **Form Login** (Spring Security) côté **front-service**.
+- Ressources statiques autorisées : `/webjars/**`, `/css/**`, `/js/**`, `/images/**`, `/assets/**`.
+- Après login, redirection vers `/homePage`.
 
-Adresse & téléphone sont optionnels.
+---
 
-Sprint 2 – Notes (MongoDB)
+## API (référence rapide)
 
-Affichage de l’historique des notes d’un patient.
+### patient-service
+- `GET /api/patients` — lister
+- `GET /api/patients/{id}` — détail
+- `POST /api/patients` — créer
+- `PUT /api/patients/{id}` — modifier
+- `DELETE /api/patients/{id}` — supprimer
 
-Ajout/Modification/Suppression d’une note.
+### note-service
+- `GET /api/notes/patient/{patientId}` — notes d’un patient
+- `GET /api/notes/{id}` — détail d’une note
+- `POST /api/notes` — créer (body: `{ patientId, content }`)
+- `PUT /api/notes/{id}` — modifier
+- `DELETE /api/notes/{id}` — supprimer
 
-Mise en forme conservée (retours à la ligne) côté UI :
+### diabetes-risk-service
+- `GET /api/diabetes-risk/{patientId}` — niveau de risque calculé
 
-<td style="white-space: pre-wrap" th :text="${note.content}"></td>
+---
 
-Sprint 3 – Rapport de risque de diabète
+## Green Code
 
-Calcul du risque : None / Borderline / In Danger / Early onset
+Bonnes pratiques mises en place (ou conseillées) pour réduire l’empreinte carbone et améliorer l’efficacité :
 
-Règles métier implémentées (âge + genre + nb de déclencheurs).
+1. **Logs parcimonieux**
+    - Niveau par défaut : `INFO` (pas de `DEBUG` en prod).
+    - Rotation des logs pour limiter l’I/O disque.
+   ```properties
+   # application.properties (ex. front-service)
+   logging.level.root=info
+   ```
 
-Déclencheurs recherchés dans les notes : Hemoglobine A1C, Microalbumin, Height, Weight, Smoker/Fumeur/Fumeuse, Abnormal/Anormal, Cholesterol/Cholestérol, Dizziness/Vertiges, Relapse/Rechute, Reaction/Réaction, Antibodies/Anticorps…
-(liste complète dans le code du service de risque)
+2. **Images Docker allégées**
+    - Build **multi-étapes** + base.
+    - Copier uniquement le JAR final.
+   ```dockerfile
+   # Étape 1: build
+   FROM maven
+   WORKDIR /app
+   COPY . .
+   RUN mvn -q -DskipTests package
 
-Jeu de données (démo)
+   # Étape 2: runtime
+   FROM maven 
+   WORKDIR /
+   COPY --from=build /app/target/*.jar /app.jar
+   ENTRYPOINT ["java","-jar","/app.jar"]
+   ```
 
-Patients : quelques entrées de test en MySQL.
+3. **Compression HTTP** (moins de bande passante)
+   ```properties
+   # application.properties (gateway/front)
+   server.compression.enabled=true
+   server.compression.mime-types=application/json,text/html,text/plain,text/css,application/javascript
+   server.compression.min-response-size=1024
+   ```
 
-Notes : import des cas de tests fournis (Sprint 2) dans MongoDB (notedb.notes).
-Exemple d’insertion :
+4. **Pagination côté API & UI**
+    - Éviter de charger toute la base en une fois.
+    - Ajouter `page`/`size` sur `/api/patients` et adapter l’UI.
 
-{ "patientId": 81, "content": "Le patient déclare ...", "createdAt": "2025-09-23T19:33:30Z" }
+5. **Caches ciblés**
+    - Mise en cache des résultats de risque pour un patient pendant X minutes.
+    - Cacher les ressources statiques (WebJars) via en-têtes HTTP.
 
-Green Code
+6. **Requêtes efficaces**
+    - Indexer les champs filtrés (MongoDB: `patientId`, dates).
+    - Vérifier les jointures et éviter le N+1 côté JPA.
 
-Logs en INFO (limite l’I/O disque).
+7. **Limiter les ressources des conteneurs** (Compose/K8s)
+   ```yaml
+   services:
+     patient-service:
+       deploy:
+         resources:
+           limits:
+             cpus: '0.50'
+             memory: 512M
+   ```
 
-Images Docker allégées.
+8. **Désactiver ce qui est inutile en prod**
+    - `spring.thymeleaf.cache=true` (prod).
+    - DevTools uniquement en dev.
+---
 
-Données privées non affichées sur les listes (affichage détaillé en fiche).
+## Améliorations possibles
 
-(Optionnel) Cache sur résultats de risque si besoin.
+- Authentification **JWT / OAuth2**
+- Mise en cache des calculs de risque
+- Monitoring (Actuator, Prometheus/Grafana)
+- Spring Cloud Config / Eureka
+- Index MongoDB & optimisations SQL
+- Politique de rotation des logs
 
-Améliorations possibles
+---
 
-JWT / OAuth2
+## Crédits
 
-Cache des calculs
-
-Monitoring (Prometheus/Grafana)
-
-Spring Cloud Config / Eureka
-
-Optimisations SQL & index Mongo
-
-Politique de rotation des logs
-
-Contact
-
-Projet réalisé par ACHAHBOUNE Hamid – Parcours Développeur d’Application Java, OpenClassrooms.
+Projet réalisé par **ACHAHBOUNE Hamid** – Parcours Développeur d’Application Java, OpenClassrooms.
