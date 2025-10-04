@@ -42,7 +42,7 @@ Patient Svc   Note Svc   Diabetes-Risk Svc
 ```
 
 > Schéma :  
-> ![Architecture](front-service\src\main\resources\static\assets\conception.PNG)
+> ![Architecture](Architecture.jpg)
 
 ---
 
@@ -62,14 +62,14 @@ Patient Svc   Note Svc   Diabetes-Risk Svc
 ## Aperçu (captures)
 
 - **Login**  
-  ![Login](front-service\src\main\resources\static\assets\login.PNG)
+  ![Login](Login.jpg)
 
 - **Page d’accueil**  
-  ![Home](front-service\src\main\resources\static\assets\homePage.PNG)
+  ![Home](HomePage.jpg)
 - **Fiche patient (ajout un patient)**
-- ![Ajouter un  patient](front-service\src\main\resources\static\assets\AjoutePatient.PNG)
+- ![Ajouter un  patient](Ajouter-patient.jpg)
 - **Fiche patient (notes + risque)**  
-  ![Détails patient](C:\wamp64\www\openclassrooms\P9-Developpez-une-solution-en-microservices-pour-votre-client\pageDetailsPatient.PNG)
+  ![Détails patient](PatientInfo.jpg)
 
 ---
 
