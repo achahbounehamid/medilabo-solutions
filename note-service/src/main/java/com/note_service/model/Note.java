@@ -8,7 +8,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-
+/**
+ * Entité MongoDB représentant une note médicale.
+ *
+ * <p>
+ * Persistée dans la collection <b>notes</b>. Les horodatages
+ * {@link #createdAt} et {@link #updatedAt} sont gérés automatiquement
+ * par l’auditing Spring Data (annotations {@code @CreatedDate} et {@code @LastModifiedDate}).
+ * </p>
+ *
+ * <p><b>Pré-requis :</b> activer l’auditing côté configuration avec {@code @EnableMongoAuditing}.</p>
+ */
 @Document(collection = "notes")
 @Getter
 @Setter

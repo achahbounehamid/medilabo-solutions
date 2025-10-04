@@ -4,7 +4,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-
+/**
+ * Entité JPA représentant un patient.
+ *
+ * <p>
+ * Mappée sur la table <b>patient</b>. Les contraintes de validation portent notamment
+ * sur les champs nom, prénom et téléphone. Le champ <code>dateDeNaissance</code> est
+ * requis au niveau base (nullable = false).
+ * </p>
+ */
 @Entity
 @Table(name = "patient")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder

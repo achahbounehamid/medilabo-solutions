@@ -5,7 +5,15 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-
+/**
+ * Modèle représentant un patient côté front-service.
+ *
+ * <p>
+ * Cette classe correspond au format JSON utilisé par le <b>patient-service</b>
+ * et est utilisée dans les formulaires et vues Thymeleaf pour l’affichage,
+ * la recherche et la mise à jour des données patient.
+ * </p>
+ */
 @Data
 public class Patient {
     private Long id;

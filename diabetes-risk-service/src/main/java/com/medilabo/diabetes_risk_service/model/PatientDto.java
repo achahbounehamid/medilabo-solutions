@@ -2,7 +2,9 @@ package com.medilabo.diabetes_risk_service.model;
 
 import lombok.*;
 import java.time.LocalDate;
-
+/**
+ * DTO représentant un patient (identité de base).
+ */
 @Getter
 @Setter
 @NoArgsConstructor

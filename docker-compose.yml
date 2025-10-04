@@ -1,5 +1,11 @@
 services:
-  # Base MongoDB pour note-service
+  # -------------------------------------------------------------------
+  # MongoDB (base de données pour note-service)
+  # - Expose le port 27018 en local (mappe sur 27017 dans le conteneur)
+  # - Initialise un utilisateur root + base 'notesdb'
+  # - Monte un répertoire d'init pour exécuter des scripts .js/.sh au démarrage
+  # - Ajoute un healthcheck pour s'assurer que Mongo est prêt avant les dépendants
+  # -------------------------------------------------------------------
   mongo:
     image: mongo:6.0
     container_name: mongo
@@ -8,13 +14,14 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: rootpass
       MONGO_INITDB_DATABASE: notesdb
     ports:
-      - "27018:27017"
+      - "27018:27017"  # host:container
     volumes:
-      - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro
-      - mongo_data:/data/db
+      - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro  # scripts d'init en lecture seule
+      - mongo_data:/data/db                                # volume persistant des données Mongo
     networks:
       - medilabo-network
 
+    # Vérifie que Mongo répond à 'db.adminCommand("ping")'
     healthcheck:
       test: ["CMD-SHELL", "mongosh --quiet -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin --eval \"db.adminCommand('ping').ok\" | grep -q 1"]
       interval: 10s
@@ -22,20 +29,25 @@ services:
       retries: 10
       start_period: 20s
 
-
+  # -------------------------------------------------------------------
+  # patient-service (API JPA/MySQL)
+  # - Se connecte à une base MySQL accessible via host.docker.internal:3306
+  # - Active Flyway (baseline true) pour migrer une base déjà existante
+  # - Expose 9001
+  # -------------------------------------------------------------------
   patient-service:
     build: ./patient-service
     container_name: patient-service
 
     environment:
-
+      # Datasource MySQL
       SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/patientsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: medilabo
       SPRING_DATASOURCE_PASSWORD: medipass
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_JPA_SHOW_SQL: "true"
 
-        # Flyway (force le baseline UNE FOIS sur la base déjà existante)j'ai rajouté
+      # Flyway (force le baseline UNE FOIS sur la base déjà existante)j'ai rajouté
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: classpath:db/migration
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
@@ -47,7 +59,12 @@ services:
     networks:
       - medilabo-network
 
-
+  # -------------------------------------------------------------------
+  # note-service (API Mongo)
+  # - Depend de Mongo et attend qu'il soit 'healthy'
+  # - Se connecte à Mongo avec un utilisateur applicatif 'note_user'
+  # - Expose 9002
+  # -------------------------------------------------------------------
   note-service:
     build: ./note-service
     container_name: note-service
@@ -61,8 +78,12 @@ services:
     networks:
       - medilabo-network
 
-
-
+  # -------------------------------------------------------------------
+  # diabetes-risk-service (moteur de calcul)
+  # - Dépend de patient-service et note-service
+  # - Consomme leurs URLs internes (DNS docker: service:port)
+  # - Expose 9003
+  # -------------------------------------------------------------------
   diabetes-risk-service:
     build: ./diabetes-risk-service
     container_name: diabetes-risk-service
@@ -78,6 +99,12 @@ services:
     networks:
       - medilabo-network
 
+  # -------------------------------------------------------------------
+  # gateway-service (Spring Cloud Gateway)
+  # - Agrège et route les appels vers les microservices
+  # - Déclare les routes via variables d'environnement
+  # - Expose 8080
+  # -------------------------------------------------------------------
   gateway-service:
     build: ./gateway-service
     container_name: gateway-service
@@ -87,14 +114,22 @@ services:
       - note-service
     environment:
       SERVER_PORT: 8080
+
+      # URL interne du patient-service (utilisable par le gateway si besoin)
       PATIENT_SERVICE_URL: http://patient-service:9001
+
+      # Définition des routes (format Spring Cloud Gateway via env)
+      # Route 0 → patient-service
       SPRING_CLOUD_GATEWAY_ROUTES_0_ID: patient-service
       SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://patient-service:9001
       SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/patients,/api/patients/**
+
+      # Route 1 → front-service (sert pages statiques et login)
       SPRING_CLOUD_GATEWAY_ROUTES_1_ID: front-service
       SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://front-service:8081
       SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/login,/css/**,/js/**,/images/**,/assets/**
 
+      # Route 2 → note-service
       SPRING_CLOUD_GATEWAY_ROUTES_2_ID: note-service
       SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://note-service:9002
       SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/api/notes,/api/notes/**
@@ -103,6 +138,11 @@ services:
     networks:
       - medilabo-network
 
+  # -------------------------------------------------------------------
+  # front-service (Thymeleaf)
+  # - Dépend des APIs et consomme leurs URLs internes
+  # - Expose 8081
+  # -------------------------------------------------------------------
   front-service:
     build: ./front-service
     container_name: front-service
@@ -120,11 +160,18 @@ services:
     networks:
       - medilabo-network
 
-
+# -------------------------------------------------------------------
+# Réseau bridge isolé pour permettre la résolution DNS interne par nom de service
+# -------------------------------------------------------------------
 networks:
   medilabo-network:
-   driver: bridge
+    driver: bridge
 
+# -------------------------------------------------------------------
+# Volumes persistants
+# - mongo_data : données MongoDB
+# - mysql_data : (déclaré mais non utilisé dans ce fichier — prêt pour un MySQL dockerisé si besoin)
+# -------------------------------------------------------------------
 volumes:
   mongo_data:
   mysql_data:

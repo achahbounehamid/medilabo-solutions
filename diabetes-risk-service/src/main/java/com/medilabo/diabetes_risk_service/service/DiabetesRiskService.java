@@ -12,28 +12,60 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.List;
+/**
+ * Service métier chargé de calculer le niveau de risque de diabète d'un patient.
+ *
+ * <p><b>Responsabilités :</b></p>
+ * <ul>
+ *   <li>Récupérer les données d'identité du patient (âge, genre) via {@link PatientClient}.</li>
+ *   <li>Récupérer les notes médicales du patient via {@link NoteClient}.</li>
+ *   <li>Compter les occurrences de termes déclencheurs ("triggers") dans les notes.</li>
+ *   <li>Appliquer des règles de classification pour déterminer le niveau de risque.</li>
+ * </ul>
+ *
+ * <p><b>Niveaux retournés :</b> "None", "Borderline", "In Danger", "Early Onset".</p>
+ *
+ * <p><b>Remarques d'implémentation :</b></p>
+ * <ul>
+ *   <li>Les textes sont normalisés (minuscules + suppression des accents) pour un comptage robuste.</li>
+ *   <li>Chaque trigger est compté au maximum une fois par note.</li>
+ *   <li>Injection par constructeur (via Lombok {@code @RequiredArgsConstructor}) pour faciliter les tests.</li>
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class DiabetesRiskService {
-
+    /** Client REST du microservice patient. */
     @Autowired private PatientClient patientClient;
+    /** Client REST du microservice notes. */
     @Autowired private NoteClient noteClient;
 
-    // Triggers EN + FR (ajuste/complète si besoin)
+    /**
+     * Ensemble de déclencheurs (EN + FR) utilisés pour évaluer le risque.
+     * <p>
+     * Stockés <i>normalisés</i> dès le départ pour éviter de normaliser à chaque comparaison.
+     * </p>
+     */
     private static final List<String> TRIGGERS = Arrays.asList(
             // EN
             "hemoglobin a1c", "hemoglobin", "microalbumin", "body height", "height",
             "body weight", "weight", "smoker", "abnormal", "cholesterol", "dizziness",
             "relapse", "reaction", "antibodies",
-            // FR équivalents courants
+            // FR
             "hemoglobine a1c", "hemoglobine", "microalbumine", "taille", "poids",
             "fumeur", "anormal", "cholesterol", "etourdissement", "etourdissements",
             "rechute", "reaction", "anticorps",
-            // Termes FR souvent présents dans tes notes
+            // Termes (termes courants)
             "soif excessive", "fatigue persistante", "hyperglycemie", "perte de poids"
     );
 
-    /** Normalise : minuscules + suppression des accents. */
+    /**
+     * Normalise une chaîne pour la recherche de triggers : passage en minuscules
+     * et suppression des accents/diacritiques.
+     *
+     * @param s texte d'entrée (peut être {@code null})
+     * @return texte normalisé (jamais {@code null})
+     */
     private static String normalize(String s) {
         if (s == null) return "";
         String n = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
@@ -43,15 +75,16 @@ public class DiabetesRiskService {
 
     /**
      * Calcule le niveau de risque de diabète pour un patient donné.
+     *
      * @param patientId ID du patient
-     * @return "None", "Borderline", "In Danger", "Early Onset"
+     * @return l'un des niveaux suivants : {@code "None"}, {@code "Borderline"}, {@code "In Danger"}, {@code "Early Onset"}
      */
     public String calculerRisque(Long patientId) {
-        // 1) Patient + notes
+        //1)Patient + notes
         PatientDto patient = patientClient.getPatientById(patientId);
         List<NoteDto> notes = noteClient.getNotesByPatientId(patientId.intValue());
 
-        // 2) Comptage des triggers sur l’ensemble des notes
+        //  2)Comptage des triggers sur l’ensemble des notes
         int triggerCount = 0;
         for (NoteDto note : notes) {
             String content = normalize(note.getContent());

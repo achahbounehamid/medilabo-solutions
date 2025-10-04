@@ -9,7 +9,14 @@ import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
 
-
+/**
+ * Modèle représentant une note médicale côté front-service.
+ *
+ * <p>
+ * Cette classe correspond au format JSON renvoyé par le <b>note-service</b>
+ * et est utilisée pour afficher et manipuler les notes dans les pages Thymeleaf.
+ * </p>
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
