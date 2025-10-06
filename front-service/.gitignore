@@ -1,10 +1,36 @@
-HELP.md
+# --- Maven / Java ---
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+*.class
+*.log
+hs_err_pid*
+replay_pid*
 
-### STS ###
+# --- Maven Wrapper (NE PAS ignorer ; on commit tout) ---
+mvnw
+mvnw.cmd
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/MavenWrapperDownloader.java
+
+# --- Gradle (si jamais) ---
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IDEs ---
+# IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# STS / Eclipse
 .apt_generated
 .classpath
 .factorypath
@@ -12,22 +38,20 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.metadata/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# --- OS / divers ---
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp

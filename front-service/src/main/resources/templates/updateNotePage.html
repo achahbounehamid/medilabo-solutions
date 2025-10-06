@@ -23,7 +23,8 @@
     <input type="hidden" name="patientId" th:value="${note.patientId}" />
 
     <button type="submit" class="btn btn-primary">Enregistrer</button>
-    <a th:href="@{/notes/patient/{patientId}(patientId=${note.patientId})}" class="btn btn-secondary">Annuler</a>
+<!--    <a th:href="@{/notes/patient/{patientId}(patientId=${note.patientId})}" class="btn btn-secondary">Annuler</a>-->
+    <a th:href="@{|/patient/infos/${note.patientId}|}" class="btn btn-secondary">Annuler</a>
   </form>
 </div>
 </body>

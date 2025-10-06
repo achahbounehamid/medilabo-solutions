@@ -55,7 +55,7 @@ public class DiabetesRiskService {
             "hemoglobine a1c", "hemoglobine", "microalbumine", "taille", "poids",
             "fumeur", "anormal", "cholesterol", "etourdissement", "etourdissements",
             "rechute", "reaction", "anticorps",
-            // Termes (termes courants)
+            // Termes
             "soif excessive", "fatigue persistante", "hyperglycemie", "perte de poids"
     );
 
@@ -69,7 +69,7 @@ public class DiabetesRiskService {
     private static String normalize(String s) {
         if (s == null) return "";
         String n = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
-                .replaceAll("\\p{M}+", ""); // enlève les diacritiques
+                .replaceAll("\\p{M}+", "");
         return n.toLowerCase(java.util.Locale.ROOT);
     }
 
@@ -88,7 +88,7 @@ public class DiabetesRiskService {
         int triggerCount = 0;
         for (NoteDto note : notes) {
             String content = normalize(note.getContent());
-            // Option : on ne compte chaque trigger qu’une fois par note
+            // on ne compte chaque trigger qu’une fois par note
             boolean[] seen = new boolean[TRIGGERS.size()];
             for (int i = 0; i < TRIGGERS.size(); i++) {
                 String trig = TRIGGERS.get(i);
@@ -106,7 +106,7 @@ public class DiabetesRiskService {
         }
         String gender = patient.getGenre() == null ? "" : patient.getGenre().toUpperCase();
 
-        // 4) Règles (tes règles actuelles conservées)
+        // 4) Règles
         if (triggerCount == 0) return "None";
         if (age > 30) {
             if (triggerCount >= 2 && triggerCount < 6) return "Borderline";

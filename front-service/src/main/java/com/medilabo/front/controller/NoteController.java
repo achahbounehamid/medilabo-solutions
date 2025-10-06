@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -108,6 +107,8 @@ public class NoteController {
         if (note == null) return "redirect:/homePage";
         model.addAttribute("note", note);
         return "updateNotePage";
+
+
     }
     /**
      * Traite la soumission de modification d'une note.
@@ -127,7 +128,8 @@ public class NoteController {
         body.put("id", id);
         body.put("content", content);
         restTemplate.put(noteServiceUrl + "/api/notes/{id}", body, id);
-        return "redirect:/notes/patient/" + patientId;
+//        return "redirect:/notes/patient/" + patientId;
+        return "redirect:/patient/infos/" + patientId;
     }
     /**
      * Supprime une note, puis redirige vers la fiche du patient.

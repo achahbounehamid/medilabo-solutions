@@ -31,16 +31,6 @@ UI réalisée avec **Spring Boot + Thymeleaf**.
 
 L’application est composée de 4 microservices + 1 passerelle :
 
-```
-Utilisateur → Front-end (Thymeleaf)
-               │
-               ▼
-           Gateway (API)
-        ╱      │        ╲
-Patient Svc   Note Svc   Diabetes-Risk Svc
- (MySQL)      (MongoDB)      (règles métier)
-```
-
 > Schéma :  
 > ![Architecture](Architecture.jpg)
 
@@ -205,7 +195,7 @@ et du profil patient.
 
 ## Green Code
 
-Bonnes pratiques mises en place (ou conseillées) pour réduire l’empreinte carbone et améliorer l’efficacité :
+Bonnes pratiques mises en place pour réduire l’empreinte carbone et améliorer l’efficacité :
 
 1. **Logs parcimonieux**
     - Niveau par défaut : `INFO` (pas de `DEBUG` en prod).
