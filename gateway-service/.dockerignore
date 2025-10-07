@@ -1,0 +1,18 @@
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# VCS
+.git/
+.gitignore
+
+# Build output local (inutile en multi-stage)
+target/
+build/
+
+# Divers
+logs/
+tmp/
+*.log
