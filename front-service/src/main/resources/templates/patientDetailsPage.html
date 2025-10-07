@@ -83,11 +83,9 @@
                         <tr th:each="n : ${notes}">
                             <td th:text="${n.content}">Contenu...</td>
 
-                            <!-- Choisis UNE des deux lignes suivantes (avec ou sans conversion de fuseau) -->
-                            <!-- Sans conversion de fuseau -->
+
                             <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt, 'dd-MM-yyyy HH:mm') : '—'}"></td>
-                            <!-- Avec conversion vers le fuseau système -->
-                            <!-- <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt.atZoneSameInstant(T(java.time.ZoneId).systemDefault()), 'dd-MM-yyyy HH:mm') : '—'}"></td> -->
+                            format(n.createdAt.atZoneSameInstant(T(java.time.ZoneId).systemDefault()), 'dd-MM-yyyy HH:mm') : '—'}"></td> -->
 
                             <td class="text-end">
                                 <a class="btn btn-sm btn-success me-2" th:href="@{|/notes/update/${n.id}|}">Modifier</a>
